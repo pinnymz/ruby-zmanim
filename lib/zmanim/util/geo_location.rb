@@ -75,8 +75,8 @@ module Zmanim::Util
     # 2017-03-15, the calculator should operate using 2017-03-14 since the expected zone is -11.  After
     # determining the UTC time, the local offset of +14:00 should be applied to bring the date back to 2017-03-15.
     def antimeridian_adjustment
-      expected_time_zone = local_meridian_offset
-      local_time_zone = local_mean_time_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS
+      expected_time_zone = local_meridian_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS
+      local_time_zone = standard_time_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS
       if expected_time_zone >= 10 && local_time_zone <= -10
         1
       elsif expected_time_zone <= -10 && local_time_zone >= 10
@@ -86,22 +86,34 @@ module Zmanim::Util
       end
     end
 
-    # Local Time Zone offset as expected based on the local meridian
+    # Local Time Zone offset as expected based on the local meridian (in ms).
+    #
+    # Essentially, this returns what the Standard Time offset would be
+    # if Time Zone boundaries would be drawn consistently on 15° meridians.
     def local_meridian_offset
-      (longitude + 7.5).floor / 15
+      Zmanim::AstronomicalCalendar::HOUR_MILLIS * ((longitude + 7.5).floor / 15)  # truncate on 15
     end
 
-    # Local Mean Time offset based on the provided Time Zone
+    # Local Mean Time offset for the expected time zone (in ms).
+    #
+    # The offset is the difference between Local Mean Time at the given
+    # longitude and Standard Time in effect for the given time zone.
+    def local_mean_time_offset
+      (longitude * 4 * Zmanim::AstronomicalCalendar::MINUTE_MILLIS) - standard_time_offset
+    end
+
+    # Standard Time offset from UTC based on the provided Time Zone (in ms).
     #
     # This will ignore DST transformations.
-    def local_mean_time_offset
+    def standard_time_offset
       time_zone.current_period.utc_offset * 1000
     end
 
-    # Local Time offset at a given point in time
+    # Time Zone offset from UTC at a given point in time (in ms).
     #
-    # This will take into account any DST transformation in effect at the given time
-    def local_time_offset_at(utc_time)
+    # This will take into account any DST transformation in effect
+    # for the given Time Zone at the given time
+    def time_zone_offset_at(utc_time)
       time_zone.period_for_utc(utc_time).utc_total_offset * 1000
     end
 

@@ -101,57 +101,89 @@ describe Zmanim::Util::GeoLocation do
     context 'for an eastern longitude around the time zone center' do
       it 'should match the expected offset' do
         subject.longitude = 75
-        expect(subject.local_meridian_offset).to eq 5
+        expect(subject.local_meridian_offset).to eq (5 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
     context 'for a western longitude around the time zone center' do
       it 'should match the expected offset' do
         subject.longitude = -75
-        expect(subject.local_meridian_offset).to eq -5
+        expect(subject.local_meridian_offset).to eq (-5 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
     context 'for an eastern longitude close to the time zone edge' do
       it 'should match the expected offset' do
         subject.longitude = 112.49
-        expect(subject.local_meridian_offset).to eq 7
+        expect(subject.local_meridian_offset).to eq (7 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
     context 'for a western longitude close to the time zone edge' do
       it 'should match the expected offset' do
         subject.longitude = -112.51
-        expect(subject.local_meridian_offset).to eq -8
+        expect(subject.local_meridian_offset).to eq (-8 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
     context 'for an eastern longitude at the time zone edge' do
       it 'should round up' do
         subject.longitude = 112.5
-        expect(subject.local_meridian_offset).to eq 8
+        expect(subject.local_meridian_offset).to eq (8 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
     context 'for a western longitude at the time zone edge' do
       it 'should round up' do
         subject.longitude = -112.5
-        expect(subject.local_meridian_offset).to eq -7
+        expect(subject.local_meridian_offset).to eq (-7 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
       end
     end
   end
 
   describe '#local_mean_time_offset' do
-    subject{ Zmanim::Util::GeoLocation.GMT }
+    subject { Zmanim::Util::GeoLocation.GMT }
     context 'for GMT' do
       it 'should be 0' do
         expect(subject.local_mean_time_offset).to eq 0
       end
     end
-    context 'for an arbitrary timezone' do
-      it 'should match the timezone offset' do
+    context 'for a non-GMT location' do
+      before do
         subject.time_zone = 'US/Eastern'
-        expect(subject.local_mean_time_offset).to eq (-5 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
+      end
+      context 'situated on the meridian' do
+        it 'should be 0' do
+          subject.longitude = -75
+          expect(subject.local_mean_time_offset).to eq 0
+        end
+      end
+      context 'situated east of the meridian' do
+        it 'should calculate the correct offset' do
+          subject.longitude = -74
+          expect(subject.local_mean_time_offset).to eq (1 * 4 * Zmanim::AstronomicalCalendar::MINUTE_MILLIS)
+        end
+      end
+      context 'situated west of the meridian' do
+        it 'should calculate the correct offset' do
+          subject.longitude = -76.256
+          expect(subject.local_mean_time_offset).to eq (-1.256 * 4 * Zmanim::AstronomicalCalendar::MINUTE_MILLIS)
+        end
       end
     end
   end
 
-  describe '#local_time_offset_at' do
+  describe '#standard_time_offset' do
+    subject{ Zmanim::Util::GeoLocation.GMT }
+    context 'for GMT' do
+      it 'should be 0' do
+        expect(subject.standard_time_offset).to eq 0
+      end
+    end
+    context 'for an arbitrary timezone' do
+      it 'should match the timezone offset' do
+        subject.time_zone = 'US/Eastern'
+        expect(subject.standard_time_offset).to eq (-5 * Zmanim::AstronomicalCalendar::HOUR_MILLIS)
+      end
+    end
+  end
+
+  describe '#time_zone_offset_at' do
     context 'for several given scenarios' do
       let(:expected){{
           ['2017-03-12T06:30:00Z', 'US/Eastern'] => -5,
@@ -167,7 +199,7 @@ describe Zmanim::Util::GeoLocation do
           utc, zone = *key
           geo = Zmanim::Util::GeoLocation.GMT
           geo.time_zone = zone
-          memo[key] = geo.local_time_offset_at(Time.parse(utc)) / Zmanim::AstronomicalCalendar::HOUR_MILLIS
+          memo[key] = geo.time_zone_offset_at(Time.parse(utc)) / Zmanim::AstronomicalCalendar::HOUR_MILLIS
           memo
         end
         expect(results).to eq expected
