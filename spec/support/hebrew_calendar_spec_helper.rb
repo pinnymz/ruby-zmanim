@@ -47,5 +47,22 @@ module Zmanim
     def format_as_iso8601(year, month, day)
       "#{("%0+5i" % year).delete('+')}-#{"%02i" % month}-#{"%02i" % day}"
     end
+
+    def days_matching(collection, days)
+      collection.select{|k,v| days.include?(k)}
+    end
+
+    def all_days_matching(year, matcher, in_israel: false, use_modern_holidays: false)
+      calendar = Zmanim::HebrewCalendar::JewishCalendar.new(year, 7, 1)
+      calendar.in_israel = in_israel
+      calendar.use_modern_holidays = use_modern_holidays
+      (1..calendar.days_in_jewish_year).each_with_object({}) do |day_offset, m|
+        if sd = matcher.call(calendar)
+          m[sd] ||= []
+          m[sd] << "#{calendar.jewish_month}-#{calendar.jewish_day}"
+        end
+        calendar.forward!
+      end
+    end
   end
 end

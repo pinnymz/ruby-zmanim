@@ -97,17 +97,9 @@ module Zmanim
       convert_date_time_for_zone utc_time
     end
 
-    # Adjust a DateTime for the provided time zone
     def convert_date_time_for_zone(time)
-      adjusted_offset = geo_location.time_zone_offset_at(time) / HOUR_MILLIS
-      time.new_offset(formatted_offset(adjusted_offset))
-    end
-
-    # offset formatted for DateTime
-    # example:
-    #    formatted_offset(-5)  #=> "-05:00"
-    def formatted_offset(offset)
-      (offset.negative? ? '-' : '+') + (offset*60).abs.divmod(60).map{|s| '%02d' % s }.join(':')
+      converter = Util::TimeZoneConverter.new(geo_location.time_zone)
+      converter.modify_offset(time)
     end
   end
 end

@@ -290,9 +290,10 @@ module Zmanim::HebrewCalendar
         jewish_year -= 1
       end
 
-      jewish_month = sorted_months_in_jewish_year(jewish_year).detect do |m|
-        absolute_date < jewish_date_to_abs_date(jewish_year, m+1, 1)
-      end
+      months = sorted_months_in_jewish_year(jewish_year)
+      jewish_month = months[0..-2].detect.with_index do |m, i|
+        absolute_date < jewish_date_to_abs_date(jewish_year, months[i+1], 1)
+      end || months.last
 
       jewish_day = absolute_date - jewish_date_to_abs_date(jewish_year, jewish_month, 1) + 1
 
