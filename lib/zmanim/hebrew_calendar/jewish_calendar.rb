@@ -14,7 +14,7 @@ module Zmanim::HebrewCalendar
     end
 
     def significant_day
-      @yom_tov = send("#{jewish_month_name}_significant_day")
+      send("#{jewish_month_name}_significant_day")
     end
 
     def yom_tov?
@@ -109,7 +109,7 @@ module Zmanim::HebrewCalendar
     def sof_zman_kiddush_levana_15_days
       molad_as_datetime + 15
     end
-    
+
     # def daf_yomi_bavli
     #
     # end
