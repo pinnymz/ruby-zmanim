@@ -4,6 +4,14 @@ module Zmanim::HebrewCalendar
   class JewishCalendar < JewishDate
     attr_accessor :in_israel, :use_modern_holidays
 
+    SIGNIFICANT_DAYS = %i(erev_rosh_hashana rosh_hashana tzom_gedalyah erev_yom_kippur yom_kippur
+                          erev_succos succos chol_hamoed_succos hoshana_rabbah shemini_atzeres simchas_torah
+                          chanukah tenth_of_teves tu_beshvat
+                          taanis_esther purim shushan_purim purim_katan shushan_purim_katan
+                          erev_pesach pesach chol_hamoed_pesach pesach_sheni erev_shavuos shavuos
+                          seventeen_of_tammuz tisha_beav tu_beav
+                          yom_hashoah yom_hazikaron yom_haatzmaut yom_yerushalayim)
+
     def initialize(*args)
       if args.count == 4
         super(args[0..2])

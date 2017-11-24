@@ -64,5 +64,23 @@ module Zmanim
         calendar.forward!
       end
     end
+
+    { standard_monday_chaseir:    5777,
+      standard_monday_shaleim:    5759,
+      standard_tuesday_kesidran:  5762,
+      standard_thursday_kesidran: 5778,
+      standard_thursday_shaleim:  5754,
+      standard_shabbos_chaseir:   5781,
+      standard_shabbos_shaleim:   5770,
+      leap_monday_chaseir:        5749,
+      leap_monday_shaleim:        5776,
+      leap_tuesday_kesidran:      5755,
+      leap_thursday_chaseir:      5765,
+      leap_thursday_shaleim:      5774,
+      leap_shabbos_chaseir:       5757,
+      leap_shabbos_shaleim:       5763,
+    }.each do |k,v|
+      define_method(k){ v }
+    end
   end
 end

@@ -1,20 +1,6 @@
 require 'spec_helper'
 
 describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
-  let(:standard_monday_chaseir){5777}
-  let(:standard_monday_shaleim){5759}
-  let(:standard_tuesday_kesidran){5762}
-  let(:standard_thursday_kesidran){5778}
-  let(:standard_thursday_shaleim){5754}
-  let(:standard_shabbos_chaseir){5781}
-  let(:standard_shabbos_shaleim){5770}
-  let(:leap_monday_chaseir){5749}
-  let(:leap_monday_shaleim){5776}
-  let(:leap_tuesday_kesidran){5755}
-  let(:leap_thursday_chaseir){5765}
-  let(:leap_thursday_shaleim){5774}
-  let(:leap_shabbos_chaseir){5757}
-  let(:leap_shabbos_shaleim){5763}
   let(:all_year_types){
     [standard_monday_chaseir, standard_monday_shaleim, standard_tuesday_kesidran, standard_thursday_kesidran, standard_thursday_shaleim,
      standard_shabbos_chaseir, standard_shabbos_shaleim, leap_monday_chaseir, leap_monday_shaleim, leap_tuesday_kesidran, leap_thursday_chaseir,
