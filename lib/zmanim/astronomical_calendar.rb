@@ -87,7 +87,7 @@ module Zmanim
       utc_time = DateTime.new(year, month, day, hours, minutes, seconds, '0')
 
       # adjust date if utc time reflects a wraparound from the local offset
-      meridian_offset = geo_location.local_meridian_offset / HOUR_MILLIS
+      meridian_offset = geo_location.expected_meridian_offset / HOUR_MILLIS
       if hours + meridian_offset > 18 && mode == :sunrise      # sunrise after 6pm indicates the UTC date has occurred earlier
         utc_time -= 1
       elsif hours + meridian_offset < 6 && mode == :sunset     # sunset before 6am indicates the UTC date has occurred later

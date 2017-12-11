@@ -75,8 +75,8 @@ module Zmanim::Util
     # 2017-03-15, the calculator should operate using 2017-03-14 since the expected zone is -11.  After
     # determining the UTC time, the local offset of +14:00 should be applied to bring the date back to 2017-03-15.
     def antimeridian_adjustment
-      expected_time_zone = local_meridian_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS
-      local_time_zone = standard_time_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS
+      expected_time_zone = expected_meridian_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS.to_f
+      local_time_zone = standard_time_offset / Zmanim::AstronomicalCalendar::HOUR_MILLIS.to_f
       if expected_time_zone >= 10 && local_time_zone <= -10
         1
       elsif expected_time_zone <= -10 && local_time_zone >= 10
@@ -86,11 +86,11 @@ module Zmanim::Util
       end
     end
 
-    # Local Time Zone offset as expected based on the local meridian (in ms).
+    # Time Zone offset as expected based on the local meridian (in ms).
     #
     # Essentially, this returns what the Standard Time offset would be
     # if Time Zone boundaries would be drawn consistently on 15° meridians.
-    def local_meridian_offset
+    def expected_meridian_offset
       Zmanim::AstronomicalCalendar::HOUR_MILLIS * ((longitude + 7.5).floor / 15)  # truncate on 15
     end
 
