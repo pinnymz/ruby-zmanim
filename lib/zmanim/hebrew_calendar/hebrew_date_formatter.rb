@@ -74,7 +74,7 @@ module Zmanim::HebrewCalendar
             tu_beav:             'ט״ו באב',
             yom_hashoah:         'יום השואה',
             yom_hazikaron:       'יום הזכרון',
-            yom_haatzmaut:       'יום העצמות',
+            yom_haatzmaut:       'יום העצמאות',
             yom_yerushalayim:    'יום ירושלים',
         }
 
