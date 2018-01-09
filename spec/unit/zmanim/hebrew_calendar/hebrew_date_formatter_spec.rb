@@ -408,6 +408,60 @@ describe Zmanim::HebrewCalendar::HebrewDateFormatter, hebrew_calendar: true do
     end
   end
 
-  # describe '#format_daf_yomi_bavli'
-  # describe '#format_daf_yomi_yerushalmi'
+  describe '#format_tefilah_additions' do
+    let(:date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 20) }
+    context 'with no additions' do
+      let(:date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 6) }
+      it 'returns an empty array' do
+        expect(subject.format_tefilah_additions(date)).to eq []
+      end
+    end
+    context 'with hebrew format' do
+      before { subject.hebrew_format = true }
+      it 'formats correctly' do
+        results = subject.format_tefilah_additions(date)
+        expect(results).to eq ['יעלה ויבא']
+      end
+      context 'with a specific nusach' do
+        it 'formats correctly' do
+          results = subject.format_tefilah_additions(date, nusach: :sefard)
+          expect(results).to eq ['מוריד הטל', 'יעלה ויבא']
+        end
+      end
+    end
+    context 'without hebrew format' do
+      before { subject.hebrew_format = false }
+      it 'formats correctly' do
+        results = subject.format_tefilah_additions(date)
+        expect(results).to eq ['Yaaleh Veyavo']
+      end
+      context 'with a specific nusach' do
+        it 'formats correctly' do
+          results = subject.format_tefilah_additions(date, nusach: :sefard)
+          expect(results).to eq ['Morid Hatal', 'Yaaleh Veyavo']
+        end
+      end
+    end
+  end
+  describe '#format_significant_shabbos' do
+    let(:date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 6) }
+    context 'when not significant shabbos' do
+      let(:date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 4) }
+      it 'returns a blank string' do
+        expect(subject.format_significant_shabbos(date)).to eq ''
+      end
+    end
+    context 'with hebrew format' do
+      before { subject.hebrew_format = true }
+      it 'formats correctly' do
+        expect(subject.format_significant_shabbos(date)).to eq 'שבת שובה'
+      end
+    end
+    context 'without hebrew format' do
+      before { subject.hebrew_format = false }
+      it 'formats correctly' do
+        expect(subject.format_significant_shabbos(date)).to eq 'Shabbos Shuva'
+      end
+    end
+  end
 end

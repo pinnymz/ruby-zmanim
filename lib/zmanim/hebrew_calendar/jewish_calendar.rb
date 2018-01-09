@@ -12,13 +12,18 @@ module Zmanim::HebrewCalendar
                           seventeen_of_tammuz tisha_beav tu_beav
                           yom_hashoah yom_hazikaron yom_haatzmaut yom_yerushalayim)
 
+    SIGNIFICANT_TEFILOS = %i(yaaleh_veyavo al_hanissim begin_mashiv_haruach end_mashiv_haruach mashiv_haruach begin_morid_hatal morid_hatal vesein_tal_umatar vesein_beracha atah_yatzarta borchi_nafshi)
+
+    SIGNIFICANT_SHABBOS = %i(parshas_shekalim parshas_zachor parshas_parah parshas_hachodesh shabbos_hagadol shabbos_shuva)
+
     def initialize(*args)
       if args.count == 4
-        super(args[0..2])
-        @in_israel = !!args[3]
+        super(*args[0..2])
       else
         super
       end
+      @in_israel = !!args[3]
+      @use_modern_holidays = false
     end
 
     def significant_day
@@ -118,13 +123,115 @@ module Zmanim::HebrewCalendar
       molad_as_datetime + 15
     end
 
-    # def daf_yomi_bavli
-    #
-    # end
-    #
-    # def daf_yomi_yerushalmi
-    #
-    # end
+    def daf_yomi_bavli
+      Zmanim::Limudim::Calculators::DafYomiBavli.new.limud(self)
+    end
+
+    def daf_yomi_yerushalmi
+      Zmanim::Limudim::Calculators::DafYomiYerushalmi.new.limud(self)
+    end
+
+    def parshas_hashavua
+      Zmanim::Limudim::Calculators::Parsha.new(in_israel: in_israel).limud(self)
+    end
+
+    def tehillim_portion
+      Zmanim::Limudim::Calculators::TehillimMonthly.new.limud(self)
+    end
+
+    def mishna_yomis
+      Zmanim::Limudim::Calculators::MishnaYomis.new.limud(self)
+    end
+
+    def tefilah_additions(walled_city: false, nusach: :ashkenaz)
+      additions = []
+      if mashiv_haruach_starts?
+        additions << :begin_mashiv_haruach
+      elsif mashiv_haruach_ends?
+        additions << (nusach == :sefard ? :begin_morid_hatal : :end_mashiv_haruach)
+      else
+        additions << :mashiv_haruach if mashiv_haruach?
+        additions << :morid_hatal if nusach == :sefard && morid_hatal?
+      end
+      additions << :vesein_beracha if vesein_beracha?
+      additions << :vesein_tal_umatar if vesein_tal_umatar?
+      additions << :atah_yatzarta if day_of_week == 7 && rosh_chodesh?
+      additions << :yaaleh_veyavo if yaaleh_veyavo?
+      additions << :al_hanissim if al_hanissim?(walled_city)
+      additions << :borchi_nafshi if rosh_chodesh?
+      additions
+    end
+
+    def significant_shabbos
+      return nil unless day_of_week == 7
+      if jewish_month == 1
+        if jewish_day == 1
+          :parshas_hachodesh
+        elsif jewish_day.between?(8,14)
+          :shabbos_hagadol
+        end
+      elsif jewish_month == 7 && jewish_day.between?(3,9)
+        :shabbos_shuva
+      elsif jewish_month == months_in_jewish_year - 1 && jewish_day.between?(25,30)
+        :parshas_shekalim
+      elsif jewish_month == months_in_jewish_year
+        if jewish_day == 1
+          :parshas_shekalim
+        elsif jewish_day.between?(7, 13)
+          :parshas_zachor
+        elsif jewish_day.between?(17,23)
+          :parshas_parah
+        elsif jewish_day.between?(24,29)
+          :parshas_hachodesh
+        end
+      end
+    end
+
+    def mashiv_haruach_starts?
+      jewish_month == 7 && jewish_day == 22
+    end
+
+    def mashiv_haruach_ends?
+      jewish_month == 1 && jewish_day == 15
+    end
+
+    def mashiv_haruach?
+      start_date = JewishDate.new(jewish_year, 7, 22)
+      end_date = JewishDate.new(jewish_year, 1, 15)
+      self.between?(start_date, end_date)
+    end
+
+    def morid_hatal?
+      !mashiv_haruach? || mashiv_haruach_starts? || mashiv_haruach_ends?
+    end
+
+    # This presumes the evenings of December 4/5 are always the initial start date outside of Israel
+    # Because the jewish date does not auto-increment in the evening, we use December 5/6 as the start date
+    # and rely on the user to increment the jewish date after nightfall.
+    # Note that according to many, the date for Vesein Tal Umatar is tied to the Julian calendar and has historically
+    # moved over time as the deviance from the Gregorian calendar increases.  The date of December 4/5 is to be used
+    # for the 20th and 21st century.
+    def vesein_tal_umatar?
+      return false if day_of_week == 7 || yom_tov_assur_bemelacha?
+      start_date = JewishDate.new(jewish_year, 8, 7)
+      start_date.set_gregorian_date(start_date.gregorian_year, 12, gregorian_leap_year?(start_date.gregorian_year+1) ? 6 : 5) unless in_israel
+      end_date = JewishDate.new(jewish_year, 1, 15)
+      self.between?(start_date, end_date)
+    end
+
+    def vesein_beracha?
+      return false if day_of_week == 7 || yom_tov_assur_bemelacha?
+      !vesein_tal_umatar?
+    end
+
+    def yaaleh_veyavo?
+      rosh_chodesh? || chol_hamoed? || yom_tov_assur_bemelacha?
+    end
+
+    def al_hanissim?(walled_city=false)
+      purim_day = walled_city ? :shushan_purim : :purim
+      [:chanukah, purim_day].include?(significant_day)
+    end
 
     private
 

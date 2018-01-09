@@ -2,13 +2,14 @@
 module Zmanim::HebrewCalendar
   class HebrewDateFormatter
     extend Zmanim::Util::TextHelper
-    attr_accessor :hebrew_format, :use_long_hebrew_years, :use_geresh_gershayim, :long_week_format,
-                  :transliterated_days_of_week,  :transliterated_months, :transliterated_significant_days,
-                  :hebrew_days_of_week, :hebrew_months, :hebrew_significant_days,
-                  :hebrew_omer_prefix
+    include Zmanim::Util::HebrewNumericFormatter
 
-    GERESH = '׳'
-    GERSHAYIM = '״'
+    attr_accessor :hebrew_format, :use_long_hebrew_years, :long_week_format,
+                  :transliterated_days_of_week,  :transliterated_months, :transliterated_significant_days,
+                  :transliterated_significant_tefilos, :transliterated_significant_shabbosos,
+                  :hebrew_days_of_week, :hebrew_months, :hebrew_significant_days, :hebrew_significant_tefilos,
+                  :hebrew_significant_shabbosos, :hebrew_omer_prefix
+
     HEBREW_OMER_PREFIX = 'ב'
     FORMATTED_DAYS_OF_WEEK = {
       transliterated: Date::DAYNAMES[0..-2] + ['Shabbos'],
@@ -77,18 +78,56 @@ module Zmanim::HebrewCalendar
             yom_haatzmaut:       'יום העצמאות',
             yom_yerushalayim:    'יום ירושלים',
         }
+    }
 
+    FORMATTED_SIGNIFICANT_TEFILOS = {
+        transliterated: Zmanim::HebrewCalendar::JewishCalendar::SIGNIFICANT_TEFILOS.each_with_object({}){|d, h|
+          h[d] = titleize(d)
+        }.merge(begin_mashiv_haruach: 'Mashiv Haruach (beginning Mussaf)',
+                end_mashiv_haruach:   'Mashiv Haruach (ending Mussaf)',
+                begin_morid_hatal:    'Morid Hatal (beginning Mussaf)'),
+        hebrew: {
+            yaaleh_veyavo:        'יעלה ויבא',
+            al_hanissim:          'על הנסים',
+            begin_mashiv_haruach: 'משיב הרוח (מתחילים במוסף)',
+            end_mashiv_haruach:   'משיב הרוח (מסיימים במוסף)',
+            mashiv_haruach:       'משיב הרוח',
+            begin_morid_hatal:    'מוריד הטל (מתחילים במוסף)',
+            morid_hatal:          'מוריד הטל',
+            vesein_tal_umatar:    'ותן טל ומטר',
+            vesein_beracha:       'ותן ברכה',
+            atah_yatzarta:        'אתה יצרת',
+            borchi_nafshi:        'ברכי נפשי',
+        }
+    }
+
+    FORMATTED_SIGNIFICANT_SHABBOSOS = {
+        transliterated: Zmanim::HebrewCalendar::JewishCalendar::SIGNIFICANT_SHABBOS.each_with_object({}){|d, h|
+          h[d] = titleize(d)
+        },
+        hebrew: {
+            parshas_shekalim:  'פרשת שקלים',
+            parshas_zachor:    'פרשת זכור',
+            parshas_parah:     'פרשת פרה',
+            parshas_hachodesh: 'פרשת החדש',
+            shabbos_hagadol:   'שבת הגדול',
+            shabbos_shuva:     'שבת שובה',
+        }
     }
 
     def initialize
-      @use_geresh_gershayim = true
+      super  # hebrew numeric formatter
       @long_week_format = true
       @transliterated_days_of_week = FORMATTED_DAYS_OF_WEEK[:transliterated]
       @transliterated_months = FORMATTED_MONTHS[:transliterated]
       @transliterated_significant_days = FORMATTED_SIGNIFICANT_DAYS[:transliterated]
+      @transliterated_significant_tefilos = FORMATTED_SIGNIFICANT_TEFILOS[:transliterated]
+      @transliterated_significant_shabbosos = FORMATTED_SIGNIFICANT_SHABBOSOS[:transliterated]
       @hebrew_days_of_week = FORMATTED_DAYS_OF_WEEK[:hebrew]
       @hebrew_months = FORMATTED_MONTHS[:hebrew]
       @hebrew_significant_days = FORMATTED_SIGNIFICANT_DAYS[:hebrew]
+      @hebrew_significant_tefilos = FORMATTED_SIGNIFICANT_TEFILOS[:hebrew]
+      @hebrew_significant_shabbosos = FORMATTED_SIGNIFICANT_SHABBOSOS[:hebrew]
       @hebrew_omer_prefix = HEBREW_OMER_PREFIX
     end
 
@@ -109,51 +148,7 @@ module Zmanim::HebrewCalendar
     end
 
     def format_hebrew_number(number)
-      raise ArgumentError unless (0..9999).include?(number)
-      descriptors = {efes: 'אפס', alafim: 'אלפים'}
-      one_glyphs = [''] + %w(א ב ג ד ה ו ז ח ט)
-      ten_glyphs = [''] + %w(י כ ל מ נ ס ע פ צ)
-      final_ten_glyphs = [''] + %w(י ך ל ם ן ס ע ף ץ)
-      hundred_glyphs = [''] + %w(ק ר ש ת תק תר תש תת תתק)
-      tav_taz_glyphs = %w(טו טז)
-
-      return descriptors[:efes] if number == 0
-
-      thousands, remainder = number.divmod(1000)
-      hundreds, remainder = remainder.divmod(100)
-      tens, ones = remainder.divmod(10)
-
-      str = ''
-
-      if number % 1000 == 0
-        return add_geresh(one_glyphs[thousands]) + ' ' + descriptors[:alafim]
-      elsif thousands > 0 && use_long_hebrew_years
-        str += add_geresh(one_glyphs[thousands]) + ' '
-      end
-
-      str += hundred_glyphs[hundreds]
-      if tens == 1 and ones == 5
-        str += tav_taz_glyphs[0]
-      elsif tens == 1 and ones == 6
-        str += tav_taz_glyphs[1]
-      else
-        if ones == 0 && hundreds != 0
-          str += final_ten_glyphs[tens]
-        else
-          str += ten_glyphs[tens]
-        end
-        str += one_glyphs[ones]
-      end
-
-      if use_geresh_gershayim
-        if [hundreds, tens, ones].select{|p| p > 0}.count == 1 && hundreds <= 4
-          str += GERESH
-        else
-          str.insert(-2, GERSHAYIM)
-        end
-      end
-
-      str
+      super(number, use_long_hebrew_years)
     end
 
     def format_significant_day(calendar)
@@ -194,13 +189,21 @@ module Zmanim::HebrewCalendar
       "#{format_hebrew_number(rosh_hashana_day)}#{kviah_glyph}#{format_hebrew_number(pesach_day)}".delete(GERESH)
     end
 
-    # def format_daf_yomi_bavli
-    #
-    # end
-    #
-    # def format_daf_yomi_yerushalmi
-    #
-    # end
+    def format_tefilah_additions(calendar, customs={walled_city: false, nusach: :ashkenaz})
+      additions = calendar.tefilah_additions(walled_city: customs[:walled_city], nusach: customs[:nusach])
+      additions.map do |addition|
+        hebrew_format ?
+          hebrew_significant_tefilos[addition] :
+          transliterated_significant_tefilos[addition]
+      end
+    end
+
+    def format_significant_shabbos(calendar)
+      return '' unless shabbos = calendar.significant_shabbos
+      hebrew_format ?
+          hebrew_significant_shabbosos[shabbos] :
+          transliterated_significant_shabbosos[shabbos]
+    end
 
     private
 
@@ -219,14 +222,10 @@ module Zmanim::HebrewCalendar
       hebrew_format ? format_hebrew_number(number) : number.to_s
     end
 
-    def add_geresh(str)
-      use_geresh_gershayim ? str + GERESH : str
-    end
-
     def format_month_from_name(month_name, is_leap_year)
       month_name = :adar_i if month_name == :adar && is_leap_year
       if hebrew_format
-        suffix = use_geresh_gershayim & month_name.to_s.start_with?('adar_') ? GERESH : ''
+        suffix = use_geresh_gershayim & month_name.to_s.start_with?('adar_') ? Zmanim::Util::HebrewNumericFormatter::GERESH : ''
         hebrew_months[month_name] + suffix
       else
         transliterated_months[month_name]

@@ -240,19 +240,154 @@ describe Zmanim::HebrewCalendar::JewishDate, hebrew_calendar: true do
     end
   end
   describe '#forward!' do
-    subject{ Zmanim::HebrewCalendar::JewishDate.new(initial_date) }
-    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ [Date.parse(secular_dates[:modern])]}
     it 'moves the date forward 1 day' do
       subject.forward!
       expect_date_mappings(subject, offset_days(secular_dates[:modern], 1), offset_days(jewish_dates[:modern], 1))
     end
+    context 'with a number' do
+      context 'within the same month' do
+        let(:initial_date){ [5778, 10, 15] }
+        it 'increments that amount' do
+          initial = subject.gregorian_date
+          subject.forward!(5)
+          expect(subject.gregorian_date).to eq initial + 5
+          expect_jewish_date(subject, 5778, 10, 20)
+          expect(subject.day_of_week).to eq(((initial + 5).cwday % 7) + 1)
+        end
+      end
+      context 'into the next month' do
+        let(:initial_date){ [5778, 10, 28] }
+        it 'increments that amount' do
+          initial = subject.gregorian_date
+          subject.forward!(5)
+          expect(subject.gregorian_date).to eq initial + 5
+          expect_jewish_date(subject, 5778, 11, 4)
+        end
+      end
+      context 'into the next year' do
+        let(:initial_date){ [5778, 6, 28] }
+        it 'increments that amount' do
+          initial = subject.gregorian_date
+          subject.forward!(5)
+          expect(subject.gregorian_date).to eq initial + 5
+          expect_jewish_date(subject, 5779, 7, 4)
+        end
+      end
+    end
   end
   describe '#back!' do
-    subject{ Zmanim::HebrewCalendar::JewishDate.new(initial_date) }
-    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ [Date.parse(secular_dates[:modern])]}
     it 'moves the date backward 1 day' do
       subject.back!
       expect_date_mappings(subject, offset_days(secular_dates[:modern], -1), offset_days(jewish_dates[:modern], -1))
+    end
+    context 'with a number' do
+      context 'within the same month' do
+        let(:initial_date){ [5778, 10, 15] }
+        it 'decrements that amount' do
+          initial = subject.gregorian_date
+          subject.back!(5)
+          expect(subject.gregorian_date).to eq initial - 5
+          expect_jewish_date(subject, 5778, 10, 10)
+          expect(subject.day_of_week).to eq(((initial - 5).cwday % 7) + 1)
+        end
+      end
+      context 'into the previous month' do
+        let(:initial_date){ [5778, 11, 4] }
+        it 'decrements that amount' do
+          initial = subject.gregorian_date
+          subject.back!(5)
+          expect(subject.gregorian_date).to eq initial - 5
+          expect_jewish_date(subject, 5778, 10, 28)
+        end
+      end
+      context 'into the previous year' do
+        let(:initial_date){ [5779, 7, 4] }
+        it 'decrements that amount' do
+          initial = subject.gregorian_date
+          subject.back!(5)
+          expect(subject.gregorian_date).to eq initial - 5
+          expect_jewish_date(subject, 5778, 6, 28)
+        end
+      end
+    end
+  end
+  describe '#addition' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ [Date.parse(secular_dates[:modern])]}
+    it 'returns a new date incremented by the given amount of days' do
+      result = subject + 5
+      expect_date_mappings(result, offset_days(secular_dates[:modern], 5), offset_days(jewish_dates[:modern], 5))
+      expect_date_mappings(subject, secular_dates[:modern], jewish_dates[:modern])
+    end
+    context 'with a negative number' do
+      it 'returns a new date decremented by the given amount of days' do
+        result = subject + (-5)
+        expect_date_mappings(result, offset_days(secular_dates[:modern], -5), offset_days(jewish_dates[:modern], -5))
+        expect_date_mappings(subject, secular_dates[:modern], jewish_dates[:modern])
+      end
+    end
+  end
+
+  describe '#subtraction' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ [Date.parse(secular_dates[:modern])]}
+    context 'with a numeric subtrahend' do
+      it 'returns a new date decremented by the given amount of days' do
+        result = subject - 5
+        expect_date_mappings(result, offset_days(secular_dates[:modern], -5), offset_days(jewish_dates[:modern], -5))
+        expect_date_mappings(subject, secular_dates[:modern], jewish_dates[:modern])
+      end
+      context 'with a negative number' do
+        it 'returns a new date incremented by the given amount of days' do
+          result = subject - (-5)
+          expect_date_mappings(result, offset_days(secular_dates[:modern], 5), offset_days(jewish_dates[:modern], 5))
+          expect_date_mappings(subject, secular_dates[:modern], jewish_dates[:modern])
+        end
+      end
+    end
+    context 'with a jewish date subtrahend' do
+      it 'returns the integer difference between the dates' do
+        second_date = subject - 10
+        expect(subject - second_date).to eq 10
+      end
+    end
+    context 'with a standard date subtrahend' do
+      it 'returns the integer difference between the dates' do
+        second_date = subject.gregorian_date - 10
+        expect(subject - second_date).to eq 10
+      end
+    end
+  end
+
+  describe '#comparable' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ [Date.parse(secular_dates[:modern])]}
+    context 'when compared with a jewish date' do
+      it 'should be comparable' do
+        second_date = subject - 10
+        expect(subject > second_date).to eq true
+        expect(subject < second_date).to eq false
+        expect(subject == second_date).to eq false
+      end
+    end
+    context 'when compared with a standard date' do
+      it 'should be comparable' do
+        second_date = subject.gregorian_date - 10
+        expect(subject > second_date).to eq true
+        expect(subject < second_date).to eq false
+        expect(subject == second_date).to eq false
+      end
+    end
+    context 'when compared with both types of dates' do
+      it 'should be comparable' do
+        second_date = subject - 10
+        third_date = subject.gregorian_date + 20
+        expect(subject.between?(second_date, third_date)).to eq true
+      end
     end
   end
 
@@ -432,6 +567,22 @@ describe Zmanim::HebrewCalendar::JewishDate, hebrew_calendar: true do
       expect(subject.sorted_months_in_jewish_year).to eq standard_months
       subject.jewish_year = leap_year_kesidran
       expect(subject.sorted_months_in_jewish_year).to eq leap_months
+    end
+  end
+  describe '#sorted_days_in_jewish_year' do
+    let(:leap_chaseir_days){ [[7,30], [8,29], [9,29], [10,29], [11,30], [12,30], [13,29], [1,30], [2,29], [3,30], [4,29], [5,30], [6,29]]}
+    let(:standard_shaleim_days){ [[7,30], [8,30], [9,30], [10,29], [11,30], [12,29], [1,30], [2,29], [3,30], [4,29], [5,30], [6,29]]}
+    it 'calculates for standard years correctly' do
+      expect(subject.sorted_days_in_jewish_year(standard_year_shaleim)).to eq standard_shaleim_days
+    end
+    it 'calculates for leap years correctly' do
+      expect(subject.sorted_days_in_jewish_year(leap_year_chaseir)).to eq leap_chaseir_days
+    end
+    it 'defaults to the current jewish year' do
+      subject.jewish_year = standard_year_shaleim
+      expect(subject.sorted_days_in_jewish_year).to eq standard_shaleim_days
+      subject.jewish_year = leap_year_chaseir
+      expect(subject.sorted_days_in_jewish_year).to eq leap_chaseir_days
     end
   end
   describe '#days_in_jewish_month' do

@@ -1,5 +1,7 @@
 module Zmanim::HebrewCalendar
   class JewishDate
+    include Comparable
+
     MONTHS = %i(nissan iyar sivan tammuz av elul tishrei cheshvan kislev teves shevat adar adar_ii)
 
     RD = Date.new(1,1,1, Date::GREGORIAN)
@@ -17,7 +19,7 @@ module Zmanim::HebrewCalendar
     CHESHVAN_KISLEV_KEVIAH = %i(chaseirim kesidran shelaimim)
 
     attr_reader :molad_hours, :molad_minutes, :molad_chalakim
-    attr_reader :jewish_year, :jewish_month, :jewish_day, :day_of_week
+    attr_reader :jewish_year, :jewish_month, :jewish_day, :day_of_week, :gregorian_date
 
     def initialize(*args)
       if args.size == 0
@@ -52,8 +54,8 @@ module Zmanim::HebrewCalendar
 
     def date=(date)
       @gregorian_date = date.gregorian
-      @day_of_week = (gregorian_date.cwday % 7) + 1   # 1-based starting with Sunday
       @absolute_date = gregorian_date_to_abs_date(gregorian_date)
+      reset_day_of_week
       @molad_hours = @molad_minutes = @molad_chalakim = 0
       @jewish_year, @jewish_month, @jewish_day = jewish_date_from_abs_date(@absolute_date)
     end
@@ -79,12 +81,80 @@ module Zmanim::HebrewCalendar
       @molad_hours, @molad_minutes, @molad_chalakim = hours, minutes, chalakim
     end
 
-    def forward!
-      self.date = gregorian_date + 1
+    def forward!(increment=1)
+      return back!(-increment) if increment < 0
+      if increment > 500
+        self.date = gregorian_date + increment
+        return self
+      end
+      days_of_year = sorted_days_in_jewish_year
+      y, m, d = jewish_year, jewish_month, jewish_day
+      d += increment
+      while d > (days_in_month = days_of_year.assoc(m)[1]) do
+        d -= days_in_month
+        m += 1
+        m = 1 if m > days_of_year.length
+        if m == 7
+          y += 1
+          days_of_year = sorted_days_in_jewish_year(y)
+        end
+      end
+      @gregorian_date += increment
+      @absolute_date += increment
+      reset_day_of_week
+      @jewish_year, @jewish_month, @jewish_day = y, m, d
+      self
     end
 
-    def back!
-      self.date = gregorian_date - 1
+    def back!(decrement=1)
+      return forward!(-decrement) if decrement < 0
+      if decrement > 500
+        self.date = gregorian_date - decrement
+        return self
+      end
+      days_of_year = sorted_days_in_jewish_year
+      y, m, d = jewish_year, jewish_month, jewish_day
+      d -= decrement
+      while d <= 0 do
+        m -= 1
+        m = days_of_year.length if m == 0
+        if m == 6
+          y -= 1
+          days_of_year = sorted_days_in_jewish_year(y)
+        end
+        days_in_month = days_of_year.assoc(m)[1]
+        d += days_in_month
+      end
+      @gregorian_date -= decrement
+      @absolute_date -= decrement
+      reset_day_of_week
+      @jewish_year, @jewish_month, @jewish_day = y, m, d
+      self
+    end
+
+    def +(addend)
+      raise ArgumentError unless addend.is_a?(Numeric)
+      self.dup.forward!(addend)
+    end
+
+    def -(subtrahend)
+      if subtrahend.is_a?(Numeric)
+        self.dup.back!(subtrahend)
+      elsif subtrahend.is_a?(JewishDate)
+        absolute_date - subtrahend.send(:absolute_date)
+      elsif subtrahend.respond_to?(:to_date)
+        gregorian_date - subtrahend.to_date
+      else
+        raise ArgumentError
+      end
+    end
+
+    def <=>(other)
+      if other.is_a?(JewishDate)
+        gregorian_date <=> other.gregorian_date
+      else
+        gregorian_date <=> other
+      end
     end
 
     def gregorian_year=(year)
@@ -151,10 +221,17 @@ module Zmanim::HebrewCalendar
     end
 
     # Returns the list of jewish months for a given jewish year in chronological order
-    #   sorted_jewish_months(5779)
+    #   sorted_months_in_jewish_year(5779)
     #   => [7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5, 6]
     def sorted_months_in_jewish_year(year=jewish_year)
       (1..months_in_jewish_year(year)).sort_by{|y| [y >= 7 ? 0 : 1, y]}
+    end
+
+    # Returns the number of days in each jewish month for a given jewish year in chronological order
+    #   sorted_days_in_jewish_year(5779)
+    #   => [[7, 30], [8, 29], [9, 30], [10, 29], [11, 30], [12, 30], [13, 29], [1, 30], [2, 29], [3, 30], [4, 29], [5, 30], [6, 29]]
+    def sorted_days_in_jewish_year(year=jewish_year)
+      sorted_months_in_jewish_year(year).map{|month| [month, days_in_jewish_month(month, year)]}
     end
 
     def days_in_jewish_month(month=jewish_month, year=jewish_year)
@@ -213,7 +290,8 @@ module Zmanim::HebrewCalendar
 
     private
 
-    attr_accessor :absolute_date, :gregorian_date
+    attr_accessor :absolute_date
+    attr_writer :gregorian_date
 
     def set_from_molad(molad)
       gregorian_date = gregorian_date_from_abs_date(molad_to_abs_date(molad))
@@ -310,6 +388,10 @@ module Zmanim::HebrewCalendar
 
     def gregorian_date_to_abs_date(date)
       (date - RD).to_i + 1
+    end
+
+    def reset_day_of_week
+      @day_of_week = (gregorian_date.cwday % 7) + 1   # 1-based starting with Sunday
     end
   end
 end

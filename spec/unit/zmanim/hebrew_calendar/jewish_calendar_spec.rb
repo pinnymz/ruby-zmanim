@@ -531,4 +531,532 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
       expect(subject.sof_zman_kiddush_levana_between_moldos).to eq first_molad + expected_offset
     end
   end
+
+  describe 'limudim' do
+    let(:date){ Date.parse('2017-12-28') }
+    subject{ Zmanim::HebrewCalendar::JewishCalendar.new(date) }
+    describe '#daf_yomi_bavli' do
+      it 'returns the appropriate limud' do
+        result = subject.daf_yomi_bavli
+        expect(result.description).to eq 'shevuos 30'
+      end
+    end
+    describe '#daf_yomi_yerushalmi' do
+      it 'returns the appropriate limud' do
+        result = subject.daf_yomi_yerushalmi
+        expect(result.description).to eq 'bava_metzia 33'
+      end
+    end
+    describe '#parshas_hashavua' do
+      subject { Zmanim::HebrewCalendar::JewishCalendar.new(5775, 1, 27) }
+      context 'outside israel' do
+        it 'returns the appropriate limud' do
+          result = subject.parshas_hashavua
+          expect(result.description).to eq 'shemini'
+        end
+      end
+      context 'in israel' do
+        it 'returns the appropriate limud' do
+          subject.in_israel = true
+          result = subject.parshas_hashavua
+          expect(result.description).to eq 'tazria - metzora'
+        end
+      end
+    end
+    describe '#tehillim_portion' do
+      it 'returns the appropriate limud' do
+        result = subject.tehillim_portion
+        expect(result.description).to eq '55 - 59'
+      end
+    end
+    describe '#mishna_yomis' do
+      it 'returns the appropriate limud' do
+        result = subject.mishna_yomis
+        expect(result.description).to eq 'megillah 3:4-5'
+      end
+    end
+  end
+
+  describe '#tefillah_additions' do
+    let(:summer_date){ [standard_monday_chaseir, 2, 5] }
+    let(:winter_date){ [standard_monday_chaseir, 10, 5] }
+    subject { Zmanim::HebrewCalendar::JewishCalendar.new }
+    context 'for regular days' do
+      before { subject.set_jewish_date(*summer_date) }
+      it 'does not include special tefillos' do
+        additions = subject.tefilah_additions
+        expect(additions).to_not include :atah_yatzarta, :yaaleh_veyavo, :al_hanissim, :borchi_nafshi
+      end
+    end
+    context 'for yaaleh veyavo days' do
+      before { subject.set_jewish_date(standard_monday_chaseir, 7, 17) }
+      it 'includes yaaleh veyavo' do
+        expect(subject.tefilah_additions).to include :yaaleh_veyavo
+      end
+    end
+    context 'for a regular shabbos' do
+      before { subject.set_jewish_date(standard_monday_chaseir, 1, 5) }
+      it 'does not include atah yatzarta' do
+        expect(subject.day_of_week).to eq 7
+        expect(subject.tefilah_additions).to_not include :atah_yatzarta
+      end
+    end
+    context 'for rosh chodesh' do
+      before { subject.set_jewish_date(standard_monday_chaseir, 1, 1) }
+      it 'does not include atah yatzarta' do
+        expect(subject.day_of_week).to_not eq 7
+        expect(subject.tefilah_additions).to_not include :atah_yatzarta
+      end
+      it 'includes borchi nafshi' do
+        expect(subject.tefilah_additions).to include :borchi_nafshi
+      end
+      context 'that falls on shabbos' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 11, 1) }
+        it 'includes atah yatzarta' do
+          expect(subject.day_of_week).to eq 7
+          expect(subject.tefilah_additions).to include :atah_yatzarta
+        end
+      end
+    end
+    context 'for Purim' do
+      before { subject.set_jewish_date(standard_monday_chaseir, 12, 14) }
+      it 'includes al hanissim' do
+        expect(subject.tefilah_additions).to include :al_hanissim
+      end
+    end
+    context 'for Shushan Purim' do
+      before { subject.set_jewish_date(standard_monday_chaseir, 12, 15) }
+      it 'does not include al hanissim' do
+        expect(subject.tefilah_additions).to_not include :al_hanissim
+      end
+    end
+    context 'for ashkenaz' do
+      context 'in the summer' do
+        before { subject.set_jewish_date(*summer_date) }
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions).to_not include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions).to_not include :morid_hatal
+        end
+        it 'includes vesein beracha' do
+          expect(subject.tefilah_additions).to include :vesein_beracha
+        end
+        it 'does not include vesein tal umatar' do
+          expect(subject.tefilah_additions).to_not include :vesein_tal_umatar
+        end
+      end
+      context 'in the winter' do
+        before { subject.set_jewish_date(*winter_date) }
+        it 'includes mashiv haruach' do
+          expect(subject.tefilah_additions).to include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions).to_not include :morid_hatal
+        end
+        it 'includes vesein tal umatar' do
+          expect(subject.tefilah_additions).to include :vesein_tal_umatar
+        end
+        it 'does not include vesein beracha' do
+          expect(subject.tefilah_additions).to_not include :vesein_beracha
+        end
+      end
+      context 'when switching to mashiv_haruach' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 7, 22) }
+        it 'includes start mashiv haruach indicator' do
+          expect(subject.tefilah_additions).to include :begin_mashiv_haruach
+        end
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions).to_not include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions).to_not include :morid_hatal
+        end
+      end
+      context 'when switching out of mashiv_haruach' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 1, 15) }
+        it 'includes end mashiv haruach indicator' do
+          expect(subject.tefilah_additions).to include :end_mashiv_haruach
+        end
+        it 'does not include start morid hatal indicator' do
+          expect(subject.tefilah_additions).to_not include :begin_morid_hatal
+        end
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions).to_not include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions).to_not include :morid_hatal
+        end
+      end
+    end
+    context 'for sefard' do
+      context 'in the summer' do
+        before { subject.set_jewish_date(*summer_date) }
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :mashiv_haruach
+        end
+        it 'includes morid hatal' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :morid_hatal
+        end
+        it 'includes vesein beracha' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :vesein_beracha
+        end
+        it 'does not include vesein tal umatar' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :vesein_tal_umatar
+        end
+      end
+      context 'in the winter' do
+        before { subject.set_jewish_date(*winter_date) }
+        it 'includes mashiv haruach' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :morid_hatal
+        end
+        it 'includes vesein tal umatar' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :vesein_tal_umatar
+        end
+        it 'does not include vesein beracha' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :vesein_beracha
+        end
+      end
+      context 'when switching to mashiv_haruach' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 7, 22) }
+        it 'includes start mashiv haruach indicator' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :begin_mashiv_haruach
+        end
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :morid_hatal
+        end
+      end
+      context 'when switching out of mashiv_haruach' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 1, 15) }
+        it 'includes start morid hatal indicator' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to include :begin_morid_hatal
+        end
+        it 'does not include end mashiv haruach indicator' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :end_mashiv_haruach
+        end
+        it 'does not include mashiv haruach' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :mashiv_haruach
+        end
+        it 'does not include morid hatal' do
+          expect(subject.tefilah_additions(nusach: :sefard)).to_not include :morid_hatal
+        end
+      end
+    end
+    context 'for walled cities' do
+      context 'for Shushan Purim' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 12, 15) }
+        it 'includes al hanissim' do
+          expect(subject.tefilah_additions(walled_city: true)).to include :al_hanissim
+        end
+      end
+      context 'for Purim' do
+        before { subject.set_jewish_date(standard_monday_chaseir, 12, 14) }
+        it 'does not include al hanissim' do
+          expect(subject.tefilah_additions(walled_city: true)).to_not include :al_hanissim
+        end
+      end
+    end
+  end
+
+  describe '#significant_shabbos' do
+    let(:significant_shabbosos){ all_days_matching(year, ->(c){ c.significant_shabbos }) }
+    context 'standard year, Monday RH, chaseirim' do
+      let(:year){ standard_monday_chaseir }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-6'],
+          parshas_shekalim: ['11-29'],
+          parshas_zachor: ['12-13'],
+          parshas_parah: ['12-20'],
+          parshas_hachodesh: ['12-27'],
+          shabbos_hagadol: ['1-12']
+        })
+      end
+    end
+    context 'standard year, Monday RH, shelaimim' do
+      let(:year){ standard_monday_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-6'],
+          parshas_shekalim: ['11-27'],
+          parshas_zachor: ['12-11'],
+          parshas_parah: ['12-18'],
+          parshas_hachodesh: ['12-25'],
+          shabbos_hagadol: ['1-10']
+        })
+      end
+    end
+    context 'standard year, Tuesday RH, kesidran' do
+      let(:year){ standard_tuesday_kesidran }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-5'],
+          parshas_shekalim: ['11-27'],
+          parshas_zachor: ['12-11'],
+          parshas_parah: ['12-18'],
+          parshas_hachodesh: ['12-25'],
+          shabbos_hagadol: ['1-10']
+        })
+      end
+    end
+    context 'standard year, Thursday RH, kesidran' do
+      let(:year){ standard_thursday_kesidran }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-3'],
+          parshas_shekalim: ['11-25'],
+          parshas_zachor: ['12-9'],
+          parshas_parah: ['12-23'],
+          parshas_hachodesh: ['1-1'],
+          shabbos_hagadol: ['1-8']
+        })
+      end
+    end
+    context 'standard year, Thursday RH, shelaimim' do
+      let(:year){ standard_thursday_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-3'],
+          parshas_shekalim: ['12-1'],
+          parshas_zachor: ['12-8'],
+          parshas_parah: ['12-22'],
+          parshas_hachodesh: ['12-29'],
+          shabbos_hagadol: ['1-14']
+        })
+      end
+    end
+    context 'standard year, Shabbos RH, chaseirim' do
+      let(:year){ standard_shabbos_chaseir }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-8'],
+          parshas_shekalim: ['12-1'],
+          parshas_zachor: ['12-8'],
+          parshas_parah: ['12-22'],
+          parshas_hachodesh: ['12-29'],
+          shabbos_hagadol: ['1-14']
+        })
+      end
+    end
+    context 'standard year, Shabbos RH, shelaimim' do
+      let(:year){ standard_shabbos_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-8'],
+          parshas_shekalim: ['11-29'],
+          parshas_zachor: ['12-13'],
+          parshas_parah: ['12-20'],
+          parshas_hachodesh: ['12-27'],
+          shabbos_hagadol: ['1-12']
+        })
+      end
+    end
+
+    context 'leap year, Monday RH, chaseirim' do
+      let(:year){ leap_monday_chaseir }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-6'],
+          parshas_shekalim: ['12-27'],
+          parshas_zachor: ['13-11'],
+          parshas_parah: ['13-18'],
+          parshas_hachodesh: ['13-25'],
+          shabbos_hagadol: ['1-10']
+        })
+      end
+    end
+    context 'leap year, Monday RH, shelaimim' do
+      let(:year){ leap_monday_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-6'],
+          parshas_shekalim: ['12-25'],
+          parshas_zachor: ['13-9'],
+          parshas_parah: ['13-23'],
+          parshas_hachodesh: ['1-1'],
+          shabbos_hagadol: ['1-8']
+        })
+      end
+    end
+    context 'leap year, Tuesday RH, kesidran' do
+      let(:year){ leap_tuesday_kesidran }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-5'],
+          parshas_shekalim: ['12-25'],
+          parshas_zachor: ['13-9'],
+          parshas_parah: ['13-23'],
+          parshas_hachodesh: ['1-1'],
+          shabbos_hagadol: ['1-8']
+        })
+      end
+    end
+    context 'leap year, Thursday RH, chaseirim' do
+      let(:year){ leap_thursday_chaseir }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-3'],
+          parshas_shekalim: ['13-1'],
+          parshas_zachor: ['13-8'],
+          parshas_parah: ['13-22'],
+          parshas_hachodesh: ['13-29'],
+          shabbos_hagadol: ['1-14']
+        })
+      end
+    end
+    context 'leap year, Thursday RH, shelaimim' do
+      let(:year){ leap_thursday_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-3'],
+          parshas_shekalim: ['12-29'],
+          parshas_zachor: ['13-13'],
+          parshas_parah: ['13-20'],
+          parshas_hachodesh: ['13-27'],
+          shabbos_hagadol: ['1-12']
+        })
+      end
+    end
+    context 'leap year, Shabbos RH, chaseirim' do
+      let(:year){ leap_shabbos_chaseir }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-8'],
+          parshas_shekalim: ['12-29'],
+          parshas_zachor: ['13-13'],
+          parshas_parah: ['13-20'],
+          parshas_hachodesh: ['13-27'],
+          shabbos_hagadol: ['1-12']
+        })
+      end
+    end
+    context 'leap year, Shabbos RH, shelaimim' do
+      let(:year){ leap_shabbos_shaleim }
+      it 'contains the expected significant shabbosos' do
+        expect(significant_shabbosos).to eq({
+          shabbos_shuva: ['7-8'],
+          parshas_shekalim: ['12-27'],
+          parshas_zachor: ['13-11'],
+          parshas_parah: ['13-18'],
+          parshas_hachodesh: ['13-25'],
+          shabbos_hagadol: ['1-10']
+        })
+      end
+    end
+  end
+
+  describe '#mashiv_haruach_starts?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.mashiv_haruach_starts? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to eq ['7-22']
+    end
+  end
+
+  describe '#mashiv_haruach_ends?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.mashiv_haruach_ends? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to eq ['1-15']
+    end
+  end
+
+  describe '#mashiv_haruach?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.mashiv_haruach? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to include '7-22', '7-23', '1-14', '1-15', '11-25', '1-5'   # 1-5 is shabbos
+      expect(matches).to_not include '7-21', '1-16', '3-7'
+    end
+  end
+
+  describe '#morid_hatal?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.morid_hatal? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to include '7-21', '7-22', '1-15', '1-16', '3-7', '7-6'    # 7-6 is shabbos
+      expect(matches).to_not include '7-23', '1-14', '11-25'
+    end
+  end
+
+  describe '#vesein_tal_umatar?' do
+    let(:matches){ all_days_matching(5777, ->(c){ c.vesein_tal_umatar? }).values.first }
+    it 'returns the expected days' do
+      # 9-5 represents December 5
+      expect(matches).to include '9-5', '11-25', '1-13', '1-14'
+      expect(matches).to_not include '9-4', '1-17', '3-8', '1-5'                        # 1-5 is shabbos
+    end
+    context 'preceding a gregorian leap year' do
+      let(:matches){ all_days_matching(5772, ->(c){ c.vesein_tal_umatar? }).values.first }
+      it 'returns the expected days' do
+        # 9-10 represents December 6
+        expect(matches).to include '9-10', '11-24', '1-13', '1-14'
+        expect(matches).to_not include '9-9', '1-17', '3-8'
+      end
+    end
+    context 'in israel' do
+      let(:matches){ all_days_matching(5777, ->(c){ c.vesein_tal_umatar? }, in_israel: true).values.first }
+      it 'returns the expected days' do
+        expect(matches).to include '8-7', '11-25', '1-13', '1-14'
+        expect(matches).to_not include '8-6', '1-16', '3-8'
+      end
+    end
+  end
+
+  describe '#vesein_beracha?' do
+    let(:matches){ all_days_matching(5777, ->(c){ c.vesein_beracha? }).values.first }
+    it 'returns the expected days' do
+      # 9-5 represents December 5
+      expect(matches).to include '9-4', '1-17', '3-8', '7-7'
+      expect(matches).to_not include '9-5', '11-25', '1-13', '1-14', '7-6'              # 7-6 is shabbos
+    end
+    context 'preceding a gregorian leap year' do
+      let(:matches){ all_days_matching(5772, ->(c){ c.vesein_beracha? }).values.first }
+      it 'returns the expected days' do
+        # 9-10 represents December 6
+        expect(matches).to include '9-9', '1-17', '3-8'
+        expect(matches).to_not include '9-10', '11-24', '1-13', '1-14'
+      end
+    end
+    context 'in israel' do
+      let(:matches){ all_days_matching(5777, ->(c){ c.vesein_beracha? }, in_israel: true).values.first }
+      it 'returns the expected days' do
+        expect(matches).to include '8-6', '1-16', '3-7'
+        expect(matches).to_not include '8-7', '11-24', '1-13', '1-14'
+      end
+    end
+  end
+
+  describe '#yaaleh_veyavo?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.yaaleh_veyavo? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to eq ['7-1', '7-2', '7-10', '7-15', '7-16', '7-17', '7-18', '7-19', '7-20', '7-21', '7-22', '7-23', '7-30',
+                             '8-1', '9-1', '10-1', '11-1', '11-30', '12-1', '1-1',
+                             '1-15', '1-16', '1-17', '1-18', '1-19', '1-20', '1-21', '1-22', '1-30', '2-1', '3-1',
+                             '3-6', '3-7', '3-30', '4-1', '5-1', '5-30', '6-1']
+    end
+    context 'in israel' do
+      let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.yaaleh_veyavo? }, in_israel: true).values.first }
+      it 'returns the expected days' do
+        expect(matches).to eq ['7-1', '7-2', '7-10', '7-15', '7-16', '7-17', '7-18', '7-19', '7-20', '7-21', '7-22', '7-30',
+                               '8-1', '9-1', '10-1', '11-1', '11-30', '12-1', '1-1',
+                               '1-15', '1-16', '1-17', '1-18', '1-19', '1-20', '1-21', '1-30', '2-1', '3-1',
+                               '3-6', '3-30', '4-1', '5-1', '5-30', '6-1']
+      end
+    end
+  end
+  describe '#al_hanissim?' do
+    let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.al_hanissim? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to eq ['9-25', '9-26', '9-27', '9-28', '9-29', '10-1', '10-2', '10-3', '12-14']
+    end
+    context 'for walled cities' do
+      let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.al_hanissim?(true) }).values.first }
+      it 'returns the expected days' do
+        expect(matches).to eq ['9-25', '9-26', '9-27', '9-28', '9-29', '10-1', '10-2', '10-3', '12-15']
+      end
+    end
+  end
 end
