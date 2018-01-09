@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["pinny@mwitz.com"]
 
   spec.summary       = %q{A Zmanim library for Ruby}
-  spec.description   = %q{Port from Eliyahu Hershfeld's KosherJava project, with some Ruby niceties.}
+  spec.description   = %q{Port from Eliyahu Hershfeld's KosherJava project, with some Ruby niceties and other minor modifications.}
   spec.homepage      = "https://github.com/pinnymz/ruby-zmanim"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

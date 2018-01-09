@@ -5,7 +5,7 @@ module Zmanim
     ZENITH_16_POINT_1 = GEOMETRIC_ZENITH + 16.1
     ZENITH_8_POINT_5 = GEOMETRIC_ZENITH + 8.5
 
-    def initialize(opts)
+    def initialize(opts={})
       super
       @candle_lighting_offset = opts[:candle_lighting_offset] || 18
     end
