@@ -72,4 +72,21 @@ describe Zmanim::Limudim::LimudimFormatter, hebrew_calendar: true do
       end
     end
   end
+
+  describe '#format_avos' do
+    let(:date){ Date.parse('2018-04-09')}
+    let(:limud){ Zmanim::HebrewCalendar::JewishCalendar.new(date).pirkei_avos }
+    context 'with hebrew format' do
+      before { subject.hebrew_format = true }
+      it 'formats as expected' do
+        expect(subject.format_avos(limud)).to eq 'פרקי אבות א'
+      end
+    end
+    context 'without hebrew format' do
+      before { subject.hebrew_format = false }
+      it 'formats as expected' do
+        expect(subject.format_avos(limud)).to eq 'Pirkei Avos 1'
+      end
+    end
+  end
 end

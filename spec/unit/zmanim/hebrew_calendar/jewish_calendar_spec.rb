@@ -575,6 +575,29 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
         expect(result.description).to eq 'megillah 3:4-5'
       end
     end
+    describe '#pirkei_avos' do
+      subject { Zmanim::HebrewCalendar::JewishCalendar.new(5775, 1, 30) }
+      it 'returns the appropriate limud' do
+        result = subject.pirkei_avos
+        expect(result.description).to eq '2'
+      end
+      context 'on a Pesach edge' do
+        subject { Zmanim::HebrewCalendar::JewishCalendar.new(5775, 1, 22) }
+        context 'outside israel' do
+          it 'recognizes Pesach as outside the cycle' do
+            result = subject.pirkei_avos
+            expect(result).to be_nil
+          end
+        end
+        context 'in israel' do
+          it 'returns the appropriate limud' do
+            subject.in_israel = true
+            result = subject.pirkei_avos
+            expect(result.description).to eq '1'
+          end
+        end
+      end
+    end
   end
 
   describe '#tefillah_additions' do

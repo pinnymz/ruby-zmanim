@@ -159,6 +159,12 @@ module Zmanim::Limudim
       prefix + limud.unit.render {|e| format_number(e) }
     end
 
+    def format_avos(limud)
+      return '' unless unit = (limud && limud.unit)
+      prefix = hebrew_format ? 'פרקי אבות ' : 'Pirkei Avos '
+      prefix + unit.render {|e| format_number(e) }
+    end
+
     private
 
     def format_number(number)

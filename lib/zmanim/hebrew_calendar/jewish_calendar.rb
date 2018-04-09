@@ -143,6 +143,10 @@ module Zmanim::HebrewCalendar
       Zmanim::Limudim::Calculators::MishnaYomis.new.limud(self)
     end
 
+    def pirkei_avos
+      Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: in_israel).limud(self)
+    end
+
     def tefilah_additions(walled_city: false, nusach: :ashkenaz)
       additions = []
       if mashiv_haruach_starts?

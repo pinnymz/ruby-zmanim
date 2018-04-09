@@ -5,7 +5,7 @@ module Zmanim::Limudim
     def limud(date)
       jewish_date = jewish_date(date)
       cycle = find_cycle(jewish_date)
-      return nil unless cycle
+      return nil unless cycle && cycle.end_date >= date
       units = cycle_units_calculation.(cycle)
       interval = cycle.first_interval(interval_end_calculation)
       while !jewish_date.between?(interval.start_date, interval.end_date) do
