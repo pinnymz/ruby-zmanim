@@ -44,6 +44,14 @@ describe Zmanim::Limudim::Calculators::PirkeiAvos, hebrew_calendar: true do
           expect_jewish_date(limud.end_date, 5778, 1, 29)
           expect(limud.description).to eq '1'
         end
+        it 'starts compounding 2 weeks before the cycle end' do
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5778, 6, 14))
+          expect(limud.description).to eq '2'
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5778, 6, 15))
+          expect(limud.description).to eq '3 - 4'
+        end
       end
       context 'in israel' do
         it 'recognizes 8th day of Pesach as the start of a cycle' do
@@ -55,6 +63,14 @@ describe Zmanim::Limudim::Calculators::PirkeiAvos, hebrew_calendar: true do
           limud = Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: true).limud(date + 1)
           expect_jewish_date(limud.end_date, 5778, 1, 29)
           expect(limud.description).to eq '2'
+        end
+        it 'starts compounding 1 week before the cycle end' do
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: true)
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5778, 6, 21))
+          expect(limud.description).to eq '4'
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: true)
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5778, 6, 22))
+          expect(limud.description).to eq '5 - 6'
         end
       end
     end
@@ -71,6 +87,14 @@ describe Zmanim::Limudim::Calculators::PirkeiAvos, hebrew_calendar: true do
           expect_jewish_date(limud.end_date, 5769, 3, 14)
           expect(limud.description).to eq '1'
         end
+        it 'starts compounding 3 weeks before the cycle end' do
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5769, 6, 2))
+          expect(limud.description).to eq '6'
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5769, 6, 3))
+          expect(limud.description).to eq '1 - 2'
+        end
       end
       context 'in israel' do
         it 'recognizes that iteration as as beginning a new sub-cycle' do
@@ -82,6 +106,14 @@ describe Zmanim::Limudim::Calculators::PirkeiAvos, hebrew_calendar: true do
           limud = Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: true).limud(date + 5) # 8 Iyar
           expect_jewish_date(limud.end_date, 5769, 3, 14)
           expect(limud.description).to eq '2'
+        end
+        it 'starts compounding 2 weeks before the cycle end' do
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new(in_israel: true)
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5769, 6, 9))
+          expect(limud.description).to eq '2'
+          limud = Zmanim::Limudim::Calculators::PirkeiAvos.new
+                      .limud(Zmanim::HebrewCalendar::JewishDate.new(5769, 6, 10))
+          expect(limud.description).to eq '3 - 4'
         end
       end
     end

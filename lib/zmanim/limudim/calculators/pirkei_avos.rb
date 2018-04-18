@@ -41,7 +41,7 @@ module Zmanim::Limudim::Calculators
 
     def cycle_units_calculation
       ->(cycle) do
-        cycle_weeks = ((cycle.end_date - cycle.start_date) / 7.0).ceil
+        cycle_weeks = ((cycle.end_date - cycle.start_date + 1) / 7.0).ceil
         # If the cycle starts on a Friday, outside of israel the 2nd day of Shavuos will fall on Shabbos
         # and we lose one week in the pirkei avos cycle
         cycle_weeks -=1 if !in_israel && cycle.start_date.day_of_week == 6
