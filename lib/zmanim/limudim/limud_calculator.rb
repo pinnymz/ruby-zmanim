@@ -9,10 +9,11 @@ module Zmanim::Limudim
       units = cycle_units_calculation.(cycle)
       interval = cycle.first_interval(interval_end_calculation)
       while !jewish_date.between?(interval.start_date, interval.end_date) do
-        interval = interval.next(interval_end_calculation)
-        while !jewish_date.between?(interval.start_date, interval.end_date) && skip_interval?(interval)
-          interval = interval.skip(interval_end_calculation)
-        end
+        interval = if skip_interval?(interval)
+                     interval.skip(interval_end_calculation)
+                   else
+                     interval.next(interval_end_calculation)
+                   end
       end
       unit = unit_for_interval(units, interval)
       Zmanim::Limudim::Limud.new(interval, unit)
@@ -79,8 +80,13 @@ module Zmanim::Limudim
     end
 
     def unit_for_interval(units, interval)
+      return skip_unit if skip_interval?(interval)
       return tiered_units_for_interval(units, interval) if tiered_units?
       Unit.new(*units[interval.iteration-1])
+    end
+
+    def skip_unit
+      nil
     end
 
     def skip_interval?(interval)

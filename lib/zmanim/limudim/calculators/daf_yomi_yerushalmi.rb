@@ -33,12 +33,8 @@ module Zmanim::Limudim::Calculators
       end
     end
 
-    def unit_for_interval(units, interval)
-      if matches_skip_day?(interval.start_date)
-        Zmanim::Limudim::Unit.new('no_daf_today')
-      else
-        super
-      end
+    def skip_unit
+      Zmanim::Limudim::Unit.new('no_daf_today')
     end
 
     def skip_interval?(interval)
