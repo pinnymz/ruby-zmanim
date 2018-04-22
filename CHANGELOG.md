@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Refactored skip_interval to generic limud detection
 ### Fixed
 - Cycle detection falsely identifies dates between cycle windows as belonging to a prior cycle
+- Load sequence can't find Zmanim module when loaded externally
 
 ## [0.1.0] - 2017-01-09 (Original release)
 ### Added
