@@ -1,4 +1,7 @@
 # encoding: UTF-8
+require 'zmanim/util/text_helper'
+require 'zmanim/util/hebrew_numeric_formatter'
+
 module Zmanim::Limudim
   class LimudimFormatter
     include Zmanim::Util::TextHelper

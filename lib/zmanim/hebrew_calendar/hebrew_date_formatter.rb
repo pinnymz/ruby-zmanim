@@ -1,4 +1,8 @@
 # encoding: UTF-8
+require 'zmanim/util/text_helper'
+require 'zmanim/util/hebrew_numeric_formatter'
+require_relative 'jewish_calendar'
+
 module Zmanim::HebrewCalendar
   class HebrewDateFormatter
     extend Zmanim::Util::TextHelper
