@@ -73,7 +73,7 @@ module Zmanim::Limudim
         sheviis: 'שביעית',
         terumos: 'תרומות',
         maasros: 'מעשרות',
-        maaser_sheni: 'מעזר שני',
+        maaser_sheni: 'מעשר שני',
         chalah: 'חלה',
         orlah: 'ערלה',
         bikurim: 'בכורים',
