@@ -1,3 +1,5 @@
+require_relative 'astronomical_calendar'
+
 module Zmanim
   class ZmanimCalendar < AstronomicalCalendar
     attr_accessor :candle_lighting_offset
