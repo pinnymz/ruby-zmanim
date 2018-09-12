@@ -14,6 +14,21 @@ describe Zmanim::ZmanimCalendar do
       expect(subject.tzais_72.to_s).to eq "2017-10-17T19:25:58-04:00"
     end
   end
+  describe 'tzais with a custom degree offset' do
+    it 'calculates correctly' do
+      expect(subject.tzais(degrees: 19.8).to_s).to eq "2017-10-17T19:53:34-04:00"  #
+    end
+  end
+  describe 'tzais with a custom minute offset' do
+    it 'calculates correctly' do
+      expect(subject.tzais(offset: 60).to_s).to eq "2017-10-17T19:13:58-04:00"  #
+    end
+  end
+  describe 'tzais with a custom temporal minute offset' do
+    it 'calculates correctly' do
+      expect(subject.tzais(zmanis_offset: 90).to_s).to eq "2017-10-17T19:36:59-04:00"
+    end
+  end
   describe '#alos' do
     it 'calculates correctly' do
       expect(subject.alos.to_s).to eq "2017-10-17T05:49:30-04:00"
@@ -22,6 +37,21 @@ describe Zmanim::ZmanimCalendar do
   describe '#alos_72' do
     it 'calculates correctly' do
       expect(subject.alos_72.to_s).to eq "2017-10-17T05:57:51-04:00"
+    end
+  end
+  describe 'alos with a custom degree offset' do
+    it 'calculates correctly' do
+      expect(subject.alos(degrees: 19.8).to_s).to eq "2017-10-17T05:30:07-04:00"  #
+    end
+  end
+  describe 'alos with a custom minute offset' do
+    it 'calculates correctly' do
+      expect(subject.alos(offset: 60).to_s).to eq "2017-10-17T06:09:51-04:00"
+    end
+  end
+  describe 'alos with a custom temporal minute offset' do
+    it 'calculates correctly' do
+      expect(subject.alos(zmanis_offset: 90).to_s).to eq "2017-10-17T05:46:50-04:00"
     end
   end
   describe '#chatzos' do
@@ -114,6 +144,152 @@ describe Zmanim::ZmanimCalendar do
     context 'with both degrees and offset' do
       it 'calculates correctly' do
         expect(subject.shaah_zmanis_by_degrees_and_offset(6,72).to_i).to eq 4314499
+      end
+    end
+  end
+  context 'with use_elevation enabled' do
+    before { subject.use_elevation = true }
+    describe '#tzais' do
+      it 'calculates correctly' do
+        expect(subject.tzais.to_s).to eq "2017-10-17T18:54:29-04:00"
+      end
+    end
+    describe '#tzais_72' do
+      it 'calculates correctly' do
+        expect(subject.tzais_72.to_s).to eq "2017-10-17T19:26:38-04:00"
+      end
+    end
+    describe 'tzais with a custom degree offset' do
+      it 'calculates correctly' do
+        expect(subject.tzais(degrees: 19.8).to_s).to eq "2017-10-17T19:53:34-04:00"  #
+      end
+    end
+    describe 'tzais with a custom minute offset' do
+      it 'calculates correctly' do
+        expect(subject.tzais(offset: 60).to_s).to eq "2017-10-17T19:14:38-04:00"  #
+      end
+    end
+    describe 'tzais with a custom temporal minute offset' do
+      it 'calculates correctly' do
+        expect(subject.tzais(zmanis_offset: 90).to_s).to eq "2017-10-17T19:37:49-04:00"
+      end
+    end
+    describe '#alos' do
+      it 'calculates correctly' do
+        expect(subject.alos.to_s).to eq "2017-10-17T05:49:30-04:00"
+      end
+    end
+    describe '#alos_72' do
+      it 'calculates correctly' do
+        expect(subject.alos_72.to_s).to eq "2017-10-17T05:57:11-04:00"
+      end
+    end
+    describe 'alos with a custom degree offset' do
+      it 'calculates correctly' do
+        expect(subject.alos(degrees: 19.8).to_s).to eq "2017-10-17T05:30:07-04:00"  #
+      end
+    end
+    describe 'alos with a custom minute offset' do
+      it 'calculates correctly' do
+        expect(subject.alos(offset: 60).to_s).to eq "2017-10-17T06:09:11-04:00"
+      end
+    end
+    describe 'alos with a custom temporal minute offset' do
+      it 'calculates correctly' do
+        expect(subject.alos(zmanis_offset: 90).to_s).to eq "2017-10-17T05:46:00-04:00"
+      end
+    end
+    describe '#chatzos' do
+      it 'calculates correctly' do
+        expect(subject.chatzos.to_s).to eq "2017-10-17T12:41:55-04:00"
+      end
+    end
+    describe '#sof_zman_shma' do
+      let(:day_start){ subject.sunrise_offset_by_degrees(96)}
+      let(:day_end){ subject.sunset_offset_by_degrees(96)}
+      it 'calculates correctly' do
+        expect(subject.sof_zman_shma(day_start, day_end).to_s).to eq "2017-10-17T09:42:10-04:00"
+      end
+    end
+    describe '#sof_zman_shma_gra' do
+      it 'calculates correctly' do
+        expect(subject.sof_zman_shma_gra.to_s).to eq "2017-10-17T09:55:33-04:00"
+      end
+    end
+    describe '#sof_zman_shma_mga' do
+      it 'calculates correctly' do
+        expect(subject.sof_zman_shma_mga.to_s).to eq "2017-10-17T09:19:33-04:00"
+      end
+    end
+    describe '#sof_zman_tfila' do
+      let(:day_start){ subject.sunrise_offset_by_degrees(96)}
+      let(:day_end){ subject.sunset_offset_by_degrees(96)}
+      it 'calculates correctly' do
+        expect(subject.sof_zman_tfila(day_start, day_end).to_s).to eq "2017-10-17T10:42:05-04:00"
+      end
+    end
+    describe '#sof_zman_tfila_gra' do
+      it 'calculates correctly' do
+        expect(subject.sof_zman_tfila_gra.to_s).to eq "2017-10-17T10:51:00-04:00"
+      end
+    end
+    describe '#sof_zman_tfila_mga' do
+      it 'calculates correctly' do
+        expect(subject.sof_zman_tfila_mga.to_s).to eq "2017-10-17T10:27:00-04:00"
+      end
+    end
+    describe '#mincha_gedola' do
+      it 'calculates correctly' do
+        expect(subject.mincha_gedola.to_s).to eq "2017-10-17T13:09:38-04:00"
+      end
+    end
+    describe '#mincha_ketana' do
+      it 'calculates correctly' do
+        expect(subject.mincha_ketana.to_s).to eq "2017-10-17T15:56:00-04:00"
+      end
+    end
+    describe '#plag_hamincha' do
+      it 'calculates correctly' do
+        expect(subject.plag_hamincha.to_s).to eq "2017-10-17T17:05:19-04:00"
+      end
+    end
+    describe '#candle_lighting' do
+      it 'calculates correctly' do
+        expect(subject.candle_lighting.to_s).to eq "2017-10-17T17:55:58-04:00"
+      end
+    end
+    describe '#shaah_zmanis' do
+      let(:day_start){ subject.sunrise_offset_by_degrees(96)}
+      let(:day_end){ subject.sunset_offset_by_degrees(96)}
+      it 'calculates correctly' do
+        expect(subject.shaah_zmanis(day_start, day_end).to_i).to eq 3594499
+      end
+    end
+    describe '#shaah_zmanis_gra' do
+      it 'calculates correctly' do
+        expect(subject.shaah_zmanis_gra.to_i).to eq 3327251
+      end
+    end
+    describe '#shaah_zmanis_mga' do
+      it 'calculates correctly' do
+        expect(subject.shaah_zmanis_mga.to_i).to eq 4047251
+      end
+    end
+    describe '#shaah_zmanis_by_degrees_and_offset' do
+      context 'with degrees' do
+        it 'calculates correctly' do
+          expect(subject.shaah_zmanis_by_degrees_and_offset(6,0).to_i).to eq 3594499
+        end
+      end
+      context 'with offset' do
+        it 'calculates correctly' do
+          expect(subject.shaah_zmanis_by_degrees_and_offset(0,72).to_i).to eq 4047251
+        end
+      end
+      context 'with both degrees and offset' do
+        it 'calculates correctly' do
+          expect(subject.shaah_zmanis_by_degrees_and_offset(6,72).to_i).to eq 4314499
+        end
       end
     end
   end
