@@ -115,7 +115,7 @@ describe Zmanim::HebrewCalendar::JewishDate, hebrew_calendar: true do
   end
   describe '.from_date' do
     let(:date){ Date.parse(secular_dates[:modern]) }
-    subject{ Zmanim::HebrewCalendar::JewishDate.new(date)}
+    subject{ Zmanim::HebrewCalendar::JewishDate.from_date(date)}
     it 'calculates for the secular date' do
       expect_date_mappings(subject, secular_dates[:modern], jewish_dates[:modern])
     end
