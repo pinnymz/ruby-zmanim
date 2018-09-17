@@ -4,6 +4,18 @@ describe Zmanim::ZmanimCalendar do
   subject{ Zmanim::ZmanimCalendar.new(geo_location: Zmanim::AstroCalendarSpecHelper::LAKEWOOD,
                                       date: Date.parse('2017-10-17')) }
 
+  describe '#hanetz' do
+    it 'is equivalent to sea level sunrise' do
+      expect(subject.hanetz).to eq subject.sea_level_sunrise
+    end
+  end
+
+  describe '#shkia' do
+    it 'is equivalent to sea level sunset' do
+      expect(subject.shkia).to eq subject.sea_level_sunset
+    end
+  end
+
   describe '#tzais' do
     it 'calculates correctly' do
       expect(subject.tzais.to_s).to eq "2017-10-17T18:54:29-04:00"
@@ -149,6 +161,16 @@ describe Zmanim::ZmanimCalendar do
   end
   context 'with use_elevation enabled' do
     before { subject.use_elevation = true }
+    describe '#hanetz' do
+      it 'is equivalent to sunrise at elevation' do
+        expect(subject.hanetz).to eq subject.sunrise
+      end
+    end
+    describe '#shkia' do
+      it 'is equivalent to sunset at elevation' do
+        expect(subject.shkia).to eq subject.sunset
+      end
+    end
     describe '#tzais' do
       it 'calculates correctly' do
         expect(subject.tzais.to_s).to eq "2017-10-17T18:54:29-04:00"
@@ -302,7 +324,7 @@ describe Zmanim::ZmanimCalendar do
     describe 'on a standard day' do
       let(:date){ "2017-10-17" }      # Tuesday
       describe 'before shkia' do
-        let(:time){ subject.sunset - 2 }
+        let(:time){ subject.shkia - 2 }
         it 'calculates correctly' do
           expect(subject.assur_bemelacha?(time)).to eq false
         end
@@ -324,7 +346,7 @@ describe Zmanim::ZmanimCalendar do
       let(:date){ "2017-10-21" }    # Shabbos
       describe 'before shkia' do
         it 'calculates correctly' do
-          time = subject.sunset - two_seconds
+          time = subject.shkia - two_seconds
           expect(subject.assur_bemelacha?(time)).to eq true
         end
       end
@@ -359,13 +381,13 @@ describe Zmanim::ZmanimCalendar do
       let(:date){ "2017-10-20" }      # Friday
       describe 'before shkia' do
         it 'calculates correctly' do
-          time = subject.sunset - two_seconds
+          time = subject.shkia - two_seconds
           expect(subject.assur_bemelacha?(time)).to eq false
         end
       end
       describe 'after shkia' do
         it 'calculates correctly' do
-          time = subject.sunset + two_seconds
+          time = subject.shkia + two_seconds
           expect(subject.assur_bemelacha?(time)).to eq true
         end
       end
@@ -380,13 +402,13 @@ describe Zmanim::ZmanimCalendar do
       let(:date){ "2018-03-31" }      # First day of Pesach
       describe 'before shkia' do
         it 'calculates correctly' do
-          time = subject.sunset - two_seconds
+          time = subject.shkia - two_seconds
           expect(subject.assur_bemelacha?(time)).to eq true
         end
       end
       describe 'after shkia' do
         it 'calculates correctly' do
-          time = subject.sunset + two_seconds
+          time = subject.shkia + two_seconds
           expect(subject.assur_bemelacha?(time)).to eq true
         end
       end

@@ -19,17 +19,19 @@ module Zmanim
       !!@use_elevation
     end
 
-    def sunrise
-      use_elevation? ? super : sea_level_sunrise
+    def elevation_adjusted_sunrise
+      use_elevation? ? sunrise : sea_level_sunrise
     end
+    alias_method :hanetz, :elevation_adjusted_sunrise
 
-    def sunset
-      use_elevation? ? super : sea_level_sunset
+    def elevation_adjusted_sunset
+      use_elevation? ? sunset : sea_level_sunset
     end
+    alias_method :shkia, :elevation_adjusted_sunset
 
     def tzais(opts={degrees: 8.5})
       degrees, offset, zmanis_offset = extract_degrees_offset(opts)
-      sunset_for_degrees = degrees == 0 ? sunset : sunset_offset_by_degrees(GEOMETRIC_ZENITH + degrees)
+      sunset_for_degrees = degrees == 0 ? elevation_adjusted_sunset : sunset_offset_by_degrees(GEOMETRIC_ZENITH + degrees)
       if zmanis_offset != 0
         offset_by_minutes_zmanis(sunset_for_degrees, zmanis_offset)
       else
@@ -43,7 +45,7 @@ module Zmanim
 
     def alos(opts={degrees: 16.1})
       degrees, offset, zmanis_offset = extract_degrees_offset(opts)
-      sunrise_for_degrees = degrees == 0 ? sunrise : sunrise_offset_by_degrees(GEOMETRIC_ZENITH + degrees)
+      sunrise_for_degrees = degrees == 0 ? elevation_adjusted_sunrise : sunrise_offset_by_degrees(GEOMETRIC_ZENITH + degrees)
       if zmanis_offset != 0
         offset_by_minutes_zmanis(sunrise_for_degrees, -zmanis_offset)
       else
@@ -62,7 +64,7 @@ module Zmanim
     end
 
     def sof_zman_shma_gra
-      sof_zman_shma(sunrise, sunset)
+      sof_zman_shma(elevation_adjusted_sunrise, elevation_adjusted_sunset)
     end
 
     def sof_zman_shma_mga
@@ -78,22 +80,22 @@ module Zmanim
     end
 
     def sof_zman_tfila_gra
-      sof_zman_tfila(sunrise, sunset)
+      sof_zman_tfila(elevation_adjusted_sunrise, elevation_adjusted_sunset)
     end
 
     def sof_zman_tfila_mga
       sof_zman_tfila(alos_72, tzais_72)
     end
 
-    def mincha_gedola(day_start=sunrise, day_end=sunset)
+    def mincha_gedola(day_start=elevation_adjusted_sunrise, day_end=elevation_adjusted_sunset)
       shaos_into_day(day_start, day_end, 6.5)
     end
 
-    def mincha_ketana(day_start=sunrise, day_end=sunset)
+    def mincha_ketana(day_start=elevation_adjusted_sunrise, day_end=elevation_adjusted_sunset)
       shaos_into_day(day_start, day_end, 9.5)
     end
 
-    def plag_hamincha(day_start=sunrise, day_end=sunset)
+    def plag_hamincha(day_start=elevation_adjusted_sunrise, day_end=elevation_adjusted_sunset)
       shaos_into_day(day_start, day_end, 10.75)
     end
 
@@ -102,7 +104,7 @@ module Zmanim
     end
 
     def shaah_zmanis_gra
-      shaah_zmanis(sunrise, sunset)
+      shaah_zmanis(elevation_adjusted_sunrise, elevation_adjusted_sunset)
     end
 
     def shaah_zmanis_mga
@@ -119,7 +121,7 @@ module Zmanim
       jewish_calendar = HebrewCalendar::JewishCalendar.new(current_time.to_date)
       jewish_calendar.in_israel = in_israel
       (current_time.to_datetime <= tzais_time && jewish_calendar.assur_bemelacha?) ||
-          (current_time.to_datetime >= sunset && jewish_calendar.tomorrow_assur_bemelacha?)
+          (current_time.to_datetime >= elevation_adjusted_sunset && jewish_calendar.tomorrow_assur_bemelacha?)
     end
 
     private
@@ -140,7 +142,7 @@ module Zmanim
 
     def offset_by_minutes_zmanis(time, minutes)
       return unless time
-      shaah_zmanis_skew = shaah_zmanis(sunrise, sunset) / HOUR_MILLIS
+      shaah_zmanis_skew = shaah_zmanis(elevation_adjusted_sunrise, elevation_adjusted_sunset) / HOUR_MILLIS
       time + (minutes * shaah_zmanis_skew / (60 * 24).to_f)
     end
   end
