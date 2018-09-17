@@ -142,7 +142,7 @@ module Zmanim
 
     def offset_by_minutes_zmanis(time, minutes)
       return unless time
-      shaah_zmanis_skew = shaah_zmanis(elevation_adjusted_sunrise, elevation_adjusted_sunset) / HOUR_MILLIS
+      shaah_zmanis_skew = shaah_zmanis_gra / HOUR_MILLIS
       time + (minutes * shaah_zmanis_skew / (60 * 24).to_f)
     end
   end
