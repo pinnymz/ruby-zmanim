@@ -1,4 +1,5 @@
 require_relative 'astronomical_calendar'
+require_relative 'hebrew_calendar/jewish_calendar'
 
 module Zmanim
   class ZmanimCalendar < AstronomicalCalendar
@@ -111,6 +112,14 @@ module Zmanim
     def shaah_zmanis_by_degrees_and_offset(degrees, offset)
       opts = {degrees: degrees, offset: offset}
       shaah_zmanis(alos(opts), tzais(opts))
+    end
+
+    def assur_bemelacha?(current_time, tzais: tzais(), in_israel: false)
+      tzais_time = tzais.is_a?(Hash) ? self.tzais(tzais) : tzais
+      jewish_calendar = HebrewCalendar::JewishCalendar.new(current_time.to_date)
+      jewish_calendar.in_israel = in_israel
+      (current_time.to_datetime <= tzais_time && jewish_calendar.assur_bemelacha?) ||
+          (current_time.to_datetime >= sunset && jewish_calendar.tomorrow_assur_bemelacha?)
     end
 
     private

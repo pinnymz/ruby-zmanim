@@ -393,17 +393,85 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
     end
   end
 
-  describe '#chol_hamoed?' do
+  describe '#assur_bemelacha?' do
     context 'outside israel' do
-      let(:chol_hamoed_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.chol_hamoed? }).values.flatten }
+      let(:issur_melacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.assur_bemelacha? }).values.flatten.sort }
       it 'detects the expected days' do
-        expect(chol_hamoed_days).to eq ['7-17', '7-18', '7-19', '7-20', '7-21', '1-17', '1-18', '1-19', '1-20']
+        expected_yom_tov = ['7-1', '7-2', '7-10', '7-15', '7-16', '7-22', '7-23',
+                            '1-15', '1-16', '1-21', '1-22', '3-6', '3-7']
+        expected_shabbosos = all_days_matching(leap_shabbos_shaleim, ->(c){c.day_of_week == 7}).values.flatten
+        expect(issur_melacha_days.sort).to eq((expected_yom_tov | expected_shabbosos).sort)
       end
     end
     context 'in israel' do
-      let(:chol_hamoed_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.chol_hamoed? }, in_israel: true).values.flatten }
+      let(:issur_melacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.assur_bemelacha? }, in_israel: true).values.flatten }
       it 'detects the expected days' do
-        expect(chol_hamoed_days).to eq ['7-16', '7-17', '7-18', '7-19', '7-20', '7-21', '1-16', '1-17', '1-18', '1-19', '1-20']
+        expected_yom_tov = ['7-1', '7-2', '7-10', '7-15', '7-22', '1-15', '1-21', '3-6']
+        expected_shabbosos = all_days_matching(leap_shabbos_shaleim, ->(c){c.day_of_week == 7}).values.flatten
+        expect(issur_melacha_days.sort).to eq((expected_yom_tov | expected_shabbosos).sort)
+      end
+    end
+  end
+
+  describe '#tomorrow_assur_bemelacha?' do
+    context 'outside israel' do
+      let(:tomorrow_assur_bemelacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.tomorrow_assur_bemelacha? }).values.flatten }
+      it 'detects the expected days' do
+        expected_erev_yom_tov = ['7-9', '7-14', '7-21', '1-14', '1-20', '3-5', '6-29']
+        expected_erev_yom_tov_sheni = ['7-1', '7-15', '7-22', '1-15', '1-21', '3-6']
+        expected_erev_shabbos = all_days_matching(leap_shabbos_shaleim, ->(c){c.day_of_week == 6}).values.flatten
+        expected_days = expected_erev_yom_tov | expected_erev_yom_tov_sheni | expected_erev_shabbos
+        expect(tomorrow_assur_bemelacha_days.sort).to eq expected_days.sort
+      end
+    end
+    context 'in israel' do
+      let(:tomorrow_assur_bemelacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.tomorrow_assur_bemelacha? }, in_israel: true).values.flatten }
+      it 'detects the expected days' do
+        expected_erev_yom_tov = ['7-9', '7-14', '7-21', '1-14', '1-20', '3-5', '6-29']
+        expected_erev_yom_tov_sheni = ['7-1']
+        expected_erev_shabbos = all_days_matching(leap_shabbos_shaleim, ->(c){c.day_of_week == 6}).values.flatten
+        expected_days = expected_erev_yom_tov | expected_erev_yom_tov_sheni | expected_erev_shabbos
+        expect(tomorrow_assur_bemelacha_days.sort).to eq expected_days.sort
+      end
+    end
+  end
+
+  describe '#delayed_candle_lighting?' do
+    let(:subject){ Zmanim::HebrewCalendar::JewishCalendar.new(Date.parse(date)) }
+    context 'for a non candle lighting day' do
+      let(:date){ '2018-09-13' }
+      it 'returns false' do
+        expect(subject.delayed_candle_lighting?).to be false
+      end
+    end
+    context 'for a standard erev shabbos' do
+      let(:date){ '2018-09-14' }
+      it 'returns false' do
+        expect(subject.delayed_candle_lighting?).to be false
+      end
+    end
+    context 'for a standard erev yom tov' do
+      let(:date){ '2018-09-30' }
+      it 'returns false' do
+        expect(subject.delayed_candle_lighting?).to be false
+      end
+    end
+    context 'for a standard first day of yom tov' do
+      let(:date){ '2018-10-01' }
+      it 'returns true' do
+        expect(subject.delayed_candle_lighting?).to be true
+      end
+    end
+    context 'for a yom tov erev shabbos' do
+      let(:date){ '2019-04-26' }
+      it 'returns false' do
+        expect(subject.delayed_candle_lighting?).to be false
+      end
+    end
+    context 'for a shabbos followed by yom tov' do
+      let(:date){ '2019-06-08' }
+      it 'returns true' do
+        expect(subject.delayed_candle_lighting?).to be true
       end
     end
   end
@@ -419,6 +487,51 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
       let(:erev_yom_tov_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.erev_yom_tov? }, in_israel: true).values.flatten }
       it 'detects the expected days' do
         expect(erev_yom_tov_days).to eq ['7-9', '7-14', '7-21', '1-14', '1-20', '3-5', '6-29']
+      end
+    end
+  end
+
+  describe '#yom_tov_sheni?' do
+    context 'outside israel' do
+      let(:yom_tov_sheni_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.yom_tov_sheni? }).values.flatten }
+      it 'detects the expected days' do
+        expect(yom_tov_sheni_days).to eq ['7-2', '7-16', '7-23', '1-16', '1-22', '3-7']
+      end
+    end
+    context 'in israel' do
+      let(:yom_tov_sheni_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.yom_tov_sheni? }, in_israel: true).values.flatten }
+      it 'detects the expected days' do
+        expect(yom_tov_sheni_days).to eq ['7-2']
+      end
+    end
+  end
+
+  describe '#erev_yom_tov_sheni?' do
+    context 'outside israel' do
+      let(:erev_yom_tov_sheni_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.erev_yom_tov_sheni? }).values.flatten }
+      it 'detects the expected days' do
+        expect(erev_yom_tov_sheni_days).to eq ['7-1', '7-15', '7-22', '1-15', '1-21', '3-6']
+      end
+    end
+    context 'in israel' do
+      let(:erev_yom_tov_sheni_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.erev_yom_tov_sheni? }, in_israel: true).values.flatten }
+      it 'detects the expected days' do
+        expect(erev_yom_tov_sheni_days).to eq ['7-1']
+      end
+    end
+  end
+
+  describe '#chol_hamoed?' do
+    context 'outside israel' do
+      let(:chol_hamoed_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.chol_hamoed? }).values.flatten }
+      it 'detects the expected days' do
+        expect(chol_hamoed_days).to eq ['7-17', '7-18', '7-19', '7-20', '7-21', '1-17', '1-18', '1-19', '1-20']
+      end
+    end
+    context 'in israel' do
+      let(:chol_hamoed_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.chol_hamoed? }, in_israel: true).values.flatten }
+      it 'detects the expected days' do
+        expect(chol_hamoed_days).to eq ['7-16', '7-17', '7-18', '7-19', '7-20', '7-21', '1-16', '1-17', '1-18', '1-19', '1-20']
       end
     end
   end
@@ -974,6 +1087,14 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
     end
   end
 
+  describe '#shabbos_mevorchim?' do
+    let(:matches){ all_days_matching(leap_monday_shaleim, ->(c){ c.shabbos_mevorchim? }).values.first }
+    it 'returns the expected days' do
+      expect(matches).to eq ['7-27', '8-25', '9-23', '10-28', '11-27', '12-25', '13-23',
+                             '1-29', '2-27', '3-26', '4-24', '5-23']
+    end
+  end
+
   describe '#mashiv_haruach_starts?' do
     let(:matches){ all_days_matching(standard_monday_chaseir, ->(c){ c.mashiv_haruach_starts? }).values.first }
     it 'returns the expected days' do
@@ -1024,6 +1145,42 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
       it 'returns the expected days' do
         expect(matches).to include '8-7', '11-25', '1-13', '1-14'
         expect(matches).to_not include '8-6', '1-16', '3-8'
+      end
+    end
+  end
+
+  describe '#vesein_tal_umatar_starts_tonight?' do
+    context 'when December 4th falls on most days' do
+      let(:matches){ all_days_matching(5779, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-26']   # 12-4
+      end
+    end
+    context 'when December 4th falls on Friday' do
+      let(:matches){ all_days_matching(5770, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-18']   # 12-5
+      end
+    end
+    context 'preceding a Gregorian leap year' do
+      context 'when December 5th falls on most days' do
+        let(:matches){ all_days_matching(5776, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+        it 'returns the expected day' do
+          expect(matches).to eq ['9-23']   # 12-5
+        end
+      end
+      context 'when December 5th falls on Friday' do
+        let(:matches){ all_days_matching(5764, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+        it 'returns the expected day' do
+          expect(matches).to eq ['9-11']   # 12-6
+        end
+      end
+    end
+    context 'in israel' do
+      # 6 Cheshvan can never fall on Friday, so it will always be the starting night of Vesein Tal Umatar
+      let(:matches){ all_days_matching(5777, ->(c){ c.vesein_tal_umatar_starts_tonight? }, in_israel: true).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['8-6']
       end
     end
   end

@@ -293,4 +293,122 @@ describe Zmanim::ZmanimCalendar do
       end
     end
   end
+
+  describe '#assur_bemelacha?' do
+    before do
+      subject.date = Date.parse(date)
+    end
+    let(:two_seconds){ 2.0 / 86400 }
+    describe 'on a standard day' do
+      let(:date){ "2017-10-17" }      # Tuesday
+      describe 'before shkia' do
+        let(:time){ subject.sunset - 2 }
+        it 'calculates correctly' do
+          expect(subject.assur_bemelacha?(time)).to eq false
+        end
+      end
+      describe 'before tzais' do
+        let(:time){ subject.tzais - two_seconds }
+        it 'calculates correctly' do
+          expect(subject.assur_bemelacha?(time)).to eq false
+        end
+      end
+      describe 'after tzais' do
+        let(:time){ subject.tzais + two_seconds }
+        it 'calculates correctly' do
+          expect(subject.assur_bemelacha?(time)).to eq false
+        end
+      end
+    end
+    describe 'on an issur melacha day' do
+      let(:date){ "2017-10-21" }    # Shabbos
+      describe 'before shkia' do
+        it 'calculates correctly' do
+          time = subject.sunset - two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      describe 'before tzais' do
+        it 'calculates correctly' do
+          time = subject.tzais - two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      describe 'after tzais' do
+        it 'calculates correctly' do
+          time = subject.tzais + two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq false
+        end
+      end
+      context 'with a custom tzais time' do
+        it 'respects the tzais time given' do
+          tzais = subject.tzais_72
+          expect(subject.assur_bemelacha?(tzais - two_seconds, tzais: tzais)).to eq true
+          expect(subject.assur_bemelacha?(tzais + two_seconds, tzais: tzais)).to eq false
+        end
+      end
+      context 'with a custom tzais rule' do
+        it 'respects the tzais rule given' do
+          tzais = subject.tzais(degrees: 11.5)
+          expect(subject.assur_bemelacha?(tzais - two_seconds, tzais: {degrees: 11.5})).to eq true
+          expect(subject.assur_bemelacha?(tzais + two_seconds, tzais: {degrees: 11.5})).to eq false
+        end
+      end
+    end
+    describe 'prior to an issur melacha day' do
+      let(:date){ "2017-10-20" }      # Friday
+      describe 'before shkia' do
+        it 'calculates correctly' do
+          time = subject.sunset - two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq false
+        end
+      end
+      describe 'after shkia' do
+        it 'calculates correctly' do
+          time = subject.sunset + two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      describe 'after tzais' do
+        it 'calculates correctly' do
+          time = subject.tzais + two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+    end
+    describe 'on an issur melacha day followed by a second issur melacha day' do
+      let(:date){ "2018-03-31" }      # First day of Pesach
+      describe 'before shkia' do
+        it 'calculates correctly' do
+          time = subject.sunset - two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      describe 'after shkia' do
+        it 'calculates correctly' do
+          time = subject.sunset + two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      describe 'after tzais' do
+        it 'calculates correctly' do
+          time = subject.tzais + two_seconds
+          expect(subject.assur_bemelacha?(time)).to eq true
+        end
+      end
+      context 'in israel' do
+        it 'considers yom tov sheni as not assur bemelacha' do
+          expect(subject.assur_bemelacha?(subject.tzais - two_seconds, in_israel: true)).to eq true
+          expect(subject.assur_bemelacha?(subject.tzais + two_seconds, in_israel: true)).to eq false
+        end
+        context 'where the following day is kept in israel' do
+          let(:date){ "2018-05-19" }      # Shabbos before Shavuos
+          it 'calculates as assur bemelacha' do
+            expect(subject.assur_bemelacha?(subject.tzais - two_seconds, in_israel: true)).to eq true
+            expect(subject.assur_bemelacha?(subject.tzais + two_seconds, in_israel: true)).to eq true
+          end
+        end
+      end
+    end
+  end
 end

@@ -30,6 +30,22 @@ module Zmanim::HebrewCalendar
       send("#{jewish_month_name}_significant_day")
     end
 
+    def assur_bemelacha?
+      day_of_week == 7 || yom_tov_assur_bemelacha?
+    end
+
+    def tomorrow_assur_bemelacha?
+      day_of_week == 6 || erev_yom_tov? || erev_yom_tov_sheni?
+    end
+
+    def candle_lighting?
+      tomorrow_assur_bemelacha?
+    end
+
+    def delayed_candle_lighting?
+      day_of_week != 6 && candle_lighting? && assur_bemelacha?
+    end
+
     def yom_tov?
       sd = significant_day
       sd && !sd.to_s.start_with?('erev_') && (!taanis? || sd == :yom_kippur)
@@ -39,15 +55,29 @@ module Zmanim::HebrewCalendar
       %i(pesach shavuos rosh_hashana yom_kippur succos shemini_atzeres simchas_torah).include?(significant_day)
     end
 
-    def chol_hamoed?
-      sd = significant_day
-      sd && (sd.to_s.start_with?('chol_hamoed_') || sd == :hoshana_rabbah)
-    end
-
     def erev_yom_tov?
       return false unless sd = significant_day
       sd.to_s.start_with?('erev_') || sd == :hoshana_rabbah ||
           (sd == :chol_hamoed_pesach && jewish_day == 20)
+    end
+
+    def yom_tov_sheni?
+      (jewish_month == 7 && jewish_day == 2) ||
+          (!in_israel && ((jewish_month == 7 && [16, 23].include?(jewish_day)) ||
+                          (jewish_month == 1 && [16, 22].include?(jewish_day)) ||
+                          (jewish_month == 3 && jewish_day == 7)))
+    end
+
+    def erev_yom_tov_sheni?
+      (jewish_month == 7 && jewish_day == 1) ||
+          (!in_israel && ((jewish_month == 7 && [15, 22].include?(jewish_day)) ||
+                          (jewish_month == 1 && [15, 21].include?(jewish_day)) ||
+                          (jewish_month == 3 && jewish_day == 6)))
+    end
+
+    def chol_hamoed?
+      sd = significant_day
+      sd && (sd.to_s.start_with?('chol_hamoed_') || sd == :hoshana_rabbah)
     end
 
     def taanis?
@@ -191,6 +221,12 @@ module Zmanim::HebrewCalendar
       end
     end
 
+    def shabbos_mevorchim?
+      day_of_week == 7 &&
+          jewish_month != 6 &&
+          (23..29).include?(jewish_day)
+    end
+
     def mashiv_haruach_starts?
       jewish_month == 7 && jewish_day == 22
     end
@@ -217,10 +253,16 @@ module Zmanim::HebrewCalendar
     # for the 20th and 21st century.
     def vesein_tal_umatar?
       return false if day_of_week == 7 || yom_tov_assur_bemelacha?
-      start_date = JewishDate.new(jewish_year, 8, 7)
-      start_date.set_gregorian_date(start_date.gregorian_year, 12, gregorian_leap_year?(start_date.gregorian_year+1) ? 6 : 5) unless in_israel
+      start_date = gregorian_vesein_tal_umatar_start
       end_date = JewishDate.new(jewish_year, 1, 15)
       self.between?(start_date, end_date)
+    end
+
+    def vesein_tal_umatar_starts_tonight?
+      return false if day_of_week == 6
+      start_date = gregorian_vesein_tal_umatar_start
+      (day_of_week == 7 && self == start_date) ||
+          self == (start_date - 1)
     end
 
     def vesein_beracha?
@@ -389,6 +431,14 @@ module Zmanim::HebrewCalendar
       elsif jewish_day == 15
         :shushan_purim
       end
+    end
+
+    def gregorian_vesein_tal_umatar_start
+      start_date = JewishDate.new(jewish_year, 8, 7)
+      unless in_israel
+        start_date.set_gregorian_date(start_date.gregorian_year, 12, gregorian_leap_year?(start_date.gregorian_year + 1) ? 6 : 5)
+      end
+      start_date
     end
   end
 end

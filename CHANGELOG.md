@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Elevations used in shaos zmanios calculations if use_elevation property is set
 - Support Alos and Tzais offset using temporal minutes
+- Various Assur Bemelacha related methods for calendar dates using JewishCalendar, 
+  as well as point-in-time using ZmanimCalendar.
+- Methods to determine Shabbos Mevorchim, first night of Vesein Tal Umatar,
+  and delayed candle lighting
 
 ## [0.2.2] - 2018-08-31
 ### Fixed
