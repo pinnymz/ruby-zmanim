@@ -7,6 +7,10 @@ module Zmanim::Limudim
       @unit = unit
     end
 
+    def clear!
+      @unit = nil
+    end
+
     def cycle
       interval.cycle
     end

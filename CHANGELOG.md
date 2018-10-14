@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- `JewishCalendar#end_of_week` returns Shabbos for this week
+- Parshas Hashavua modifier to return blank Limud if the standard Parsha is not read this Shabbos 
+
 ## [0.3.0] - 2018-09-17
 ### Added
 - Elevations used in shaos zmanios calculations if use_elevation property is set

@@ -138,6 +138,7 @@ module Zmanim::Limudim
     end
 
     def format_parsha(limud)
+      return '' unless limud && limud.unit
       prefix = hebrew_format ? 'פרשת ' : 'Parshas '
       prefix + limud.unit.render do |parsha|
         hebrew_format ? PARSHIYOS[parsha] : titleize(parsha)

@@ -153,6 +153,10 @@ module Zmanim::HebrewCalendar
       molad_as_datetime + 15
     end
 
+    def end_of_week
+      self + (7 - day_of_week)
+    end
+
     def daf_yomi_bavli
       Zmanim::Limudim::Calculators::DafYomiBavli.new.limud(self)
     end
@@ -161,8 +165,10 @@ module Zmanim::HebrewCalendar
       Zmanim::Limudim::Calculators::DafYomiYerushalmi.new.limud(self)
     end
 
-    def parshas_hashavua
-      Zmanim::Limudim::Calculators::Parsha.new(in_israel: in_israel).limud(self)
+    def parshas_hashavua(current_week_only: false)
+      limud = Zmanim::Limudim::Calculators::Parsha.new(in_israel: in_israel).limud(self)
+      limud.clear! if current_week_only && limud.interval.end_date > end_of_week
+      limud
     end
 
     def tehillim_portion

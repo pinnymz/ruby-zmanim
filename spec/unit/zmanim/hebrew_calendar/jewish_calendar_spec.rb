@@ -395,7 +395,7 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
 
   describe '#assur_bemelacha?' do
     context 'outside israel' do
-      let(:issur_melacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.assur_bemelacha? }).values.flatten.sort }
+      let(:issur_melacha_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.assur_bemelacha? }).values.flatten }
       it 'detects the expected days' do
         expected_yom_tov = ['7-1', '7-2', '7-10', '7-15', '7-16', '7-22', '7-23',
                             '1-15', '1-16', '1-21', '1-22', '3-6', '3-7']
@@ -645,6 +645,27 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
     end
   end
 
+  describe '#end_of_week' do
+    context 'for a Sunday' do
+      subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 8, 5) }
+      it 'returns the upcoming shabbos' do
+        expect(subject.end_of_week).to eq subject + 6
+      end
+    end
+    context 'for a Shabbos' do
+      subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 8, 4) }
+      it 'returns the same day' do
+        expect(subject.end_of_week).to eq subject
+      end
+    end
+    context 'for the middle of the week' do
+      subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 8, 1) }
+      it 'returns the upcoming shabbos' do
+        expect(subject.end_of_week).to eq subject + 3
+      end
+    end
+  end
+
   describe 'limudim' do
     let(:date){ Date.parse('2017-12-28') }
     subject{ Zmanim::HebrewCalendar::JewishCalendar.new(date) }
@@ -673,6 +694,29 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
           subject.in_israel = true
           result = subject.parshas_hashavua
           expect(result.description).to eq 'tazria - metzora'
+        end
+      end
+      context 'for this week only' do
+        context 'for a standard shabbos' do
+          subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 7, 1) }
+          it 'returns the appropriate limud' do
+            result = subject.parshas_hashavua(current_week_only: true)
+            expect(result.description).to eq 'vayeilech'
+          end
+        end
+        context 'for a week where weekly parsha is not read' do
+          subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 7, 17) }
+          it 'returns a blank limud' do
+            result = subject.parshas_hashavua(current_week_only: true)
+            expect(result.description).to eq ''
+          end
+        end
+        context 'for early in week where parsha is read mid-week' do
+          subject { Zmanim::HebrewCalendar::JewishCalendar.new(5779, 7, 21) }
+          it 'returns a blank limud' do
+            result = subject.parshas_hashavua(current_week_only: true)
+            expect(result.description).to eq 'vezos_haberacha'
+          end
         end
       end
     end
