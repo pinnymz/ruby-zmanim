@@ -124,7 +124,7 @@ module Zmanim::Limudim
         taharos: 'טהרות',
         mikvaos: 'מקואות',
         niddah: 'נדה',
-        machshirim: 'מכשירין',
+        machshirin: 'מכשירין',
         zavim: 'זבים',
         tevul_yom: 'טבול יום',
         yadayim: 'ידים',
