@@ -165,6 +165,10 @@ module Zmanim::HebrewCalendar
       Zmanim::Limudim::Calculators::DafYomiYerushalmi.new.limud(self)
     end
 
+    def daf_hashavua_bavli
+      Zmanim::Limudim::Calculators::DafHashavuaBavli.new.limud(self)
+    end
+
     def parshas_hashavua(current_week_only: false)
       limud = Zmanim::Limudim::Calculators::Parsha.new(in_israel: in_israel).limud(self)
       limud.clear! if current_week_only && limud.interval.end_date > end_of_week

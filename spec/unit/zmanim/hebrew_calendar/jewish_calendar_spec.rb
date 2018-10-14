@@ -681,6 +681,12 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
         expect(result.description).to eq 'bava_metzia 33'
       end
     end
+    describe '#daf_hashavua_bavli' do
+      it 'returns the appropriate limud' do
+        result = subject.daf_hashavua_bavli
+        expect(result.description).to eq 'rosh_hashanah 26'
+      end
+    end
     describe '#parshas_hashavua' do
       subject { Zmanim::HebrewCalendar::JewishCalendar.new(5775, 1, 27) }
       context 'outside israel' do
