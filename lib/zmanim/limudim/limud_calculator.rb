@@ -7,7 +7,7 @@ module Zmanim::Limudim
       cycle = find_cycle(jewish_date)
       return nil unless cycle && cycle.end_date >= date
       units = cycle_units_calculation.(cycle)
-      interval = cycle.first_interval(interval_end_calculation)
+      interval = Interval.first_for_cycle(cycle, interval_end_calculation)
       while !jewish_date.between?(interval.start_date, interval.end_date) do
         interval = if skip_interval?(interval)
                      interval.skip(interval_end_calculation)

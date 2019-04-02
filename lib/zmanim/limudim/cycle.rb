@@ -32,9 +32,5 @@ module Zmanim::Limudim
       new_end_date = cycle_end_calculation.(new_start_date, new_iteration)
       Cycle.new(new_start_date, new_end_date, new_iteration)
     end
-
-    def first_interval(interval_end_calculation)
-      Interval.first_for_cycle(self, interval_end_calculation)
-    end
   end
 end
