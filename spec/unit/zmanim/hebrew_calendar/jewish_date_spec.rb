@@ -711,6 +711,22 @@ describe Zmanim::HebrewCalendar::JewishDate, hebrew_calendar: true do
       expect(subject.cheshvan_kislev_kviah).to eq :shelaimim
     end
   end
+  describe '#kviah' do
+    it 'calculates correctly' do
+      expect(subject.kviah(standard_monday_chaseir)).to eq({rosh_hashana: 2, kviah: :chaseirim, pesach: 3})
+      expect(subject.kviah(standard_tuesday_kesidran)).to eq({rosh_hashana: 3, kviah: :kesidran, pesach: 5})
+      expect(subject.kviah(standard_thursday_shaleim)).to eq({rosh_hashana: 5, kviah: :shelaimim, pesach: 1})
+      expect(subject.kviah(leap_monday_chaseir)).to eq({rosh_hashana: 2, kviah: :chaseirim, pesach: 5})
+      expect(subject.kviah(leap_tuesday_kesidran)).to eq({rosh_hashana: 3, kviah: :kesidran, pesach: 7})
+      expect(subject.kviah(leap_thursday_shaleim)).to eq({rosh_hashana: 5, kviah: :shelaimim, pesach: 3})
+    end
+    it 'defaults ot the current jewish year' do
+      subject.jewish_year = standard_monday_chaseir
+      expect(subject.kviah).to eq({rosh_hashana: 2, kviah: :chaseirim, pesach: 3})
+      subject.jewish_year = standard_thursday_shaleim
+      expect(subject.kviah).to eq({rosh_hashana: 5, kviah: :shelaimim, pesach: 1})
+    end
+  end
   describe '#molad' do
     it 'returns the correct molad for the given year and month' do
       molad = subject.molad(5, 5778)

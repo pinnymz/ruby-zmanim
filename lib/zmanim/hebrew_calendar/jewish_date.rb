@@ -275,6 +275,17 @@ module Zmanim::HebrewCalendar
       CHESHVAN_KISLEV_KEVIAH[(days_in_jewish_year(year) % 10) - 3]
     end
 
+    def kviah(year=jewish_year)
+      date = year.is_a?(Numeric) ? Zmanim::HebrewCalendar::JewishDate.new(year, 7, 1) : year
+      kviah = date.cheshvan_kislev_kviah
+      rosh_hashana_day = date.day_of_week
+      date.jewish_month = 1
+      pesach_day = date.day_of_week
+      {rosh_hashana: rosh_hashana_day,
+       kviah: kviah,
+       pesach: pesach_day}
+    end
+
     # Returns a new JewishDate as the molad for given month
     def molad(month=jewish_month, year=jewish_year)
       self.class.from_molad(chalakim_since_molad_tohu(year, month))

@@ -47,40 +47,40 @@ module Zmanim::Limudim::Calculators
 
     def cycle_units_calculation
       ->(cycle) do
-        kviah = Zmanim::HebrewCalendar::HebrewDateFormatter.new.format_kviah(cycle.start_date.jewish_year)
+        kviah_values = cycle.start_date.kviah.values
         modifications = in_israel ?
                          {
-                             'בחה' => [%i(matos masei), %i(nitzavim vayeilech)],
-                             'בשז' => [],
-                             'גכז' => [],
-                             'החא' => [],
-                             'השג' => [%i(nitzavim vayeilech)],
-                             'זחג' => [%i(matos masei), %i(nitzavim vayeilech)],
-                             'זשה' => [%i(matos masei), %i(nitzavim vayeilech)],
-                             'בחג' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
-                             'בשה' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
-                             'גכה' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
-                             'הכז' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(matos masei)],
-                             'השא' => [%i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                             'זחא' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                             'זשג' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                         }[kviah] :
+                             [2,:chaseirim,5] => [%i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:shelaimim,7] => [],
+                             [3,:kesidran,7] => [],
+                             [5,:chaseirim,1] => [],
+                             [5,:shelaimim,3] => [%i(nitzavim vayeilech)],
+                             [7,:chaseirim,3] => [%i(matos masei), %i(nitzavim vayeilech)],
+                             [7,:shelaimim,5] => [%i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:chaseirim,3] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:shelaimim,5] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
+                             [3,:kesidran,5] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
+                             [5,:kesidran,7] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(matos masei)],
+                             [5,:shelaimim,1] => [%i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                             [7,:chaseirim,1] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                             [7,:shelaimim,3] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                         }[kviah_values] :
                          {
-                             'בחה' => [%i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
-                             'בשז' => [%i(matos masei)],
-                             'גכז' => [%i(matos masei)],
-                             'החא' => [],
-                             'השג' => [%i(nitzavim vayeilech)],
-                             'זחג' => [%i(matos masei), %i(nitzavim vayeilech)],
-                             'זשה' => [%i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
-                             'בחג' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
-                             'בשה' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
-                             'גכה' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
-                             'הכז' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                             'השא' => [%i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                             'זחא' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
-                             'זשג' => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
-                         }[kviah]
+                             [2,:chaseirim,5] => [%i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:shelaimim,7] => [%i(matos masei)],
+                             [3,:kesidran,7] => [%i(matos masei)],
+                             [5,:chaseirim,1] => [],
+                             [5,:shelaimim,3] => [%i(nitzavim vayeilech)],
+                             [7,:chaseirim,3] => [%i(matos masei), %i(nitzavim vayeilech)],
+                             [7,:shelaimim,5] => [%i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:chaseirim,3] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
+                             [2,:shelaimim,5] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
+                             [3,:kesidran,5] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(chukas balak), %i(matos masei), %i(nitzavim vayeilech)],
+                             [5,:kesidran,7] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                             [5,:shelaimim,1] => [%i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                             [7,:chaseirim,1] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei)],
+                             [7,:shelaimim,3] => [%i(vayakheil pikudei), %i(tazria metzora), %i(acharei kedoshim), %i(behar bechukosai), %i(matos masei), %i(nitzavim vayeilech)],
+                         }[kviah_values]
         modifications.inject(default_units) do |transitioned_units, parsha_pair|
           index = transitioned_units.index(parsha_pair.first)
           transitioned_units[0...index] + [parsha_pair] + transitioned_units[(index + 2)..-1]

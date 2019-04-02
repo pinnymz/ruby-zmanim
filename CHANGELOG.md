@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - `JewishCalendar#end_of_week` returns Shabbos for this week
 - Parshas Hashavua modifier to return blank Limud if the standard Parsha is not read this Shabbos
-- Daf Hashavua calculator 
+- Daf Hashavua calculator
+- Refactor kviah calculation logic to JewishDate
+- Remove formatter dependency for Parsha calculator
 
 ## [0.3.0] - 2018-09-17
 ### Added

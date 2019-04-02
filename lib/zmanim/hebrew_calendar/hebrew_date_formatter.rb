@@ -185,12 +185,9 @@ module Zmanim::HebrewCalendar
 
     def format_kviah(year)
       date = year.is_a?(Numeric) ? Zmanim::HebrewCalendar::JewishDate.new(year, 7, 1) : year
-      kviah = date.cheshvan_kislev_kviah
-      rosh_hashana_day = date.day_of_week
-      kviah_glyph = {chaseirim: 'ח', kesidran: 'כ', shelaimim: 'ש'}[kviah]
-      date.jewish_month = 1
-      pesach_day = date.day_of_week
-      "#{format_hebrew_number(rosh_hashana_day)}#{kviah_glyph}#{format_hebrew_number(pesach_day)}".delete(GERESH)
+      kviah_values = date.kviah
+      kviah_glyph = {chaseirim: 'ח', kesidran: 'כ', shelaimim: 'ש'}[kviah_values[:kviah]]
+      "#{format_hebrew_number(kviah_values[:rosh_hashana])}#{kviah_glyph}#{format_hebrew_number(kviah_values[:pesach])}".delete(GERESH)
     end
 
     def format_tefilah_additions(calendar, customs={walled_city: false, nusach: :ashkenaz})
