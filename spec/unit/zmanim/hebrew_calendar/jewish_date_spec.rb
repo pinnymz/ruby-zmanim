@@ -391,6 +391,156 @@ describe Zmanim::HebrewCalendar::JewishDate, hebrew_calendar: true do
     end
   end
 
+  ### Range functions ###
+  describe '#succ' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    it 'returns a calendar for next day' do
+      expect_gregorian_date(subject.succ, initial_date + 1)
+      expect_jewish_date(subject.succ, 5778, 8, 7)
+    end
+  end
+
+  describe '#step' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    context 'with a positive step' do
+      let(:step){ 3 }
+      it 'enumerates successive dates until the limit, with the given step' do
+        results = subject.step(initial_date + 10, step).map(&:itself)
+        expect(results).to eq [subject, subject + 3, subject + 6, subject + 9]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, with the given step' do
+          results = []
+          subject.step(initial_date + 10, step){|v| results << v }
+          expect(results).to eq [subject, subject + 3, subject + 6, subject + 9]
+        end
+      end
+    end
+    context 'with a negative step' do
+      let(:step){ -3 }
+      it 'enumerates successive dates until the limit, with the given step' do
+        results = subject.step(initial_date - 10, step).map(&:itself)
+        expect(results).to eq [subject, subject - 3, subject - 6, subject - 9]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, with the given step' do
+          results = []
+          subject.step(initial_date - 10, step){|v| results << v }
+          expect(results).to eq [subject, subject - 3, subject - 6, subject - 9]
+        end
+      end
+    end
+    context 'with a zero step' do
+      let(:step){ 0 }
+      it 'raises an error' do
+        expect{ subject.step(initial_date + 10, step).map(&:itself) }.to raise_error ArgumentError
+      end
+    end
+    context 'with no step' do
+      it 'enumerates successive dates until the limit, using a step of 1' do
+        results = subject.step(initial_date + 3).map(&:itself)
+        expect(results).to eq [subject, subject + 1, subject + 2, subject + 3]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, using a step of 1' do
+          results = []
+          subject.step(initial_date + 3){|v| results << v }
+          expect(results).to eq [subject, subject + 1, subject + 2, subject + 3]
+        end
+      end
+    end
+  end
+
+  describe '#downto' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    context 'with a positive step' do
+      let(:step){ 3 }
+      it 'enumerates successive dates until the limit, with the given step' do
+        results = subject.downto(initial_date - 10, step).map(&:itself)
+        expect(results).to eq [subject, subject - 3, subject - 6, subject - 9]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, with the given step' do
+          results = []
+          subject.downto(initial_date - 10, step){|v| results << v }
+          expect(results).to eq [subject, subject - 3, subject - 6, subject - 9]
+        end
+      end
+    end
+    context 'with a negative step' do
+      let(:step){ -3 }
+      it 'raises an error' do
+        expect{ subject.downto(initial_date - 10, step).map(&:itself) }.to raise_error ArgumentError
+      end
+    end
+    context 'with a zero step' do
+      let(:step){ 0 }
+      it 'raises an error' do
+        expect{ subject.downto(initial_date - 10, step).map(&:itself) }.to raise_error ArgumentError
+      end
+    end
+    context 'with no step' do
+      it 'enumerates successive dates until the limit, using a step of 1' do
+        results = subject.downto(initial_date - 3).map(&:itself)
+        expect(results).to eq [subject, subject - 1, subject - 2, subject - 3]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, using a step of 1' do
+          results = []
+          subject.downto(initial_date - 3){|v| results << v }
+          expect(results).to eq [subject, subject - 1, subject - 2, subject - 3]
+        end
+      end
+    end
+  end
+
+  describe '#upto' do
+    subject{ Zmanim::HebrewCalendar::JewishDate.new(*initial_date) }
+    let(:initial_date){ Date.parse(secular_dates[:modern])}
+    context 'with a positive step' do
+      let(:step){ 3 }
+      it 'enumerates successive dates until the limit, with the given step' do
+        results = subject.upto(initial_date + 10, step).map(&:itself)
+        expect(results).to eq [subject, subject + 3, subject + 6, subject + 9]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, with the given step' do
+          results = []
+          subject.upto(initial_date + 10, step){|v| results << v }
+          expect(results).to eq [subject, subject + 3, subject + 6, subject + 9]
+        end
+      end
+    end
+    context 'with a negative step' do
+      let(:step){ -3 }
+      it 'raises an error' do
+        expect{ subject.upto(initial_date + 10, step).map(&:itself) }.to raise_error ArgumentError
+      end
+    end
+    context 'with a zero step' do
+      let(:step){ 0 }
+      it 'raises an error' do
+        expect{ subject.upto(initial_date + 10, step).map(&:itself) }.to raise_error ArgumentError
+      end
+    end
+    context 'with no step' do
+      it 'enumerates successive dates until the limit, using a step of 1' do
+        results = subject.upto(initial_date + 3).map(&:itself)
+        expect(results).to eq [subject, subject + 1, subject + 2, subject + 3]
+      end
+      context 'with a block' do
+        it 'yields successive dates until the limit, using a step of 1' do
+          results = []
+          subject.upto(initial_date + 3){|v| results << v }
+          expect(results).to eq [subject, subject + 1, subject + 2, subject + 3]
+        end
+      end
+    end
+  end
+
   ### Gregorian date operations
   describe '#gregorian_year=' do
     subject{ Zmanim::HebrewCalendar::JewishDate.new(Date.parse('2017-06-07')) }

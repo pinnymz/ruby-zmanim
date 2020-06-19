@@ -157,6 +157,40 @@ module Zmanim::HebrewCalendar
       end
     end
 
+    def succ
+      self + 1
+    end
+
+    def step(limit, step=1, &block)
+      if step < 0
+        downto(limit, -step, &block)
+      else
+        upto(limit, step, &block)
+      end
+    end
+
+    def downto(limit, step=1)
+      raise ArgumentError, 'step argument must be greater than 0' if step <= 0
+      return to_enum(__method__, limit, step) unless block_given?
+      c = self
+      while c >= limit
+        yield c
+        c -= step
+      end
+      self
+    end
+
+    def upto(limit, step=1)
+      raise ArgumentError, 'step argument must be greater than 0' if step <= 0
+      return to_enum(__method__, limit, step) unless block_given?
+      c = self
+      while c <= limit
+        yield c
+        c += step
+      end
+      self
+    end
+
     def gregorian_year=(year)
       set_gregorian_date(year, gregorian_month, gregorian_day)
     end
