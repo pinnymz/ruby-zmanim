@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Refactor kviah calculation logic to JewishDate
 - Remove formatter dependency for Parsha calculator
 
+### Fixed
+- Added Lag B'Omer as significant day / yom tov
+- Fixed Lag B'Omer spelling for english formatted omer
+
 ## [0.3.0] - 2018-09-17
 ### Added
 - Elevations used in shaos zmanios calculations if use_elevation property is set
