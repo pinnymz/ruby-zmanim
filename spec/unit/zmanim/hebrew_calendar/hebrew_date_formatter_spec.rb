@@ -389,7 +389,7 @@ describe Zmanim::HebrewCalendar::HebrewDateFormatter, hebrew_calendar: true do
         context 'for lag baomer special case' do
           let(:day){ 18 }
           it 'formats correctly' do
-            expect(subject.format_omer(date)).to eq 'Lag BaOmer'
+            expect(subject.format_omer(date)).to eq "Lag B'Omer"
           end
         end
       end

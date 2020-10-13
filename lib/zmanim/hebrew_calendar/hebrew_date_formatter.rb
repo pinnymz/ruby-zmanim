@@ -46,7 +46,7 @@ module Zmanim::HebrewCalendar
         transliterated: Zmanim::HebrewCalendar::JewishCalendar::SIGNIFICANT_DAYS.each_with_object({}){|d, h|
           h[d] = titleize(d)
         }.merge(tzom_gedalyah: 'Fast of Gedalyah', tenth_of_teves: 'Tenth of Teves', tu_beshvat: "Tu B'Shvat",
-                taanis_esther: 'Fast of Esther', seventeen_of_tammuz: 'Seventeenth of Tammuz',
+                taanis_esther: 'Fast of Esther', lag_baomer: "Lag B'Omer", seventeen_of_tammuz: 'Seventeenth of Tammuz',
                 tisha_beav: "Tisha B'Av", tu_beav: "Tu B'Av", yom_hashoah: 'Yom HaShoah', yom_haatzmaut: "Yom Ha'atzmaut"),
         hebrew: {
             erev_rosh_hashana:   'ערב ראש השנה',
@@ -72,6 +72,7 @@ module Zmanim::HebrewCalendar
             pesach:              'פסח',
             chol_hamoed_pesach:  'חול המועד פסח',
             pesach_sheni:        'פסח שני',
+            lag_baomer:          'ל״ג בעומר',
             erev_shavuos:        'ערב שבועות',
             shavuos:             'שבועות',
             seventeen_of_tammuz: 'שבעה עשר בתמוז',
@@ -179,7 +180,7 @@ module Zmanim::HebrewCalendar
       if hebrew_format
         format_hebrew_number(number) + ' ' + hebrew_omer_prefix + 'עומר'
       else
-        number == 33 ? 'Lag BaOmer' : "Omer #{number}"
+        number == 33 ? "Lag B'Omer" : "Omer #{number}"
       end
     end
 
