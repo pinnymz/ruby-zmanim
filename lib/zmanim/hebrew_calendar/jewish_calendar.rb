@@ -84,6 +84,11 @@ module Zmanim::HebrewCalendar
       %i(seventeen_of_tammuz tisha_beav tzom_gedalyah yom_kippur tenth_of_teves taanis_esther).include?(significant_day)
     end
 
+    def taanis_bechorim?
+      (day_of_week != 7 && jewish_day == 14 && jewish_month == 1) ||   # normally 14th of nissan,
+          (day_of_week == 5 && jewish_day == 12 && jewish_month == 1)  # when that falls on shabbos, moved to previous Thursday
+    end
+
     def rosh_chodesh?
       jewish_day == 30 || (jewish_day == 1 && jewish_month != 7)
     end

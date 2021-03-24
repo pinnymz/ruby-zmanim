@@ -544,6 +544,20 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
     end
   end
 
+  describe '#taanis_bechorim?' do
+    let(:year){ leap_shabbos_shaleim }
+    let(:fast_days){ all_days_matching(year, ->(c){ c.taanis_bechorim? }).values.flatten }
+    it 'detects the expected days' do
+      expect(fast_days).to eq ['1-14']
+    end
+    context 'when falling on Shabbos' do
+      let(:year){ standard_shabbos_chaseir }
+      it 'moves to previous Thursday' do
+        expect(fast_days).to eq ['1-12']
+      end
+    end
+  end
+
   describe '#rosh_chodesh?' do
     let(:rosh_chodesh_days){ all_days_matching(leap_shabbos_shaleim, ->(c){ c.rosh_chodesh? }).values.flatten }
     it 'detects the expected days' do
