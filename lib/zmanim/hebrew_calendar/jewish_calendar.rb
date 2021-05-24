@@ -260,12 +260,9 @@ module Zmanim::HebrewCalendar
       !mashiv_haruach? || mashiv_haruach_starts? || mashiv_haruach_ends?
     end
 
-    # This presumes the evenings of December 4/5 are always the initial start date outside of Israel
-    # Because the jewish date does not auto-increment in the evening, we use December 5/6 as the start date
+    # Because the jewish date does not auto-increment in the evening,
+    # we use the daytime transition (e.g. December 5/6 for 20th/21st century) as the start date
     # and rely on the user to increment the jewish date after nightfall.
-    # Note that according to many, the date for Vesein Tal Umatar is tied to the Julian calendar and has historically
-    # moved over time as the deviance from the Gregorian calendar increases.  The date of December 4/5 is to be used
-    # for the 20th and 21st century.
     def vesein_tal_umatar?
       return false if day_of_week == 7 || yom_tov_assur_bemelacha?
       start_date = gregorian_vesein_tal_umatar_start
@@ -451,11 +448,16 @@ module Zmanim::HebrewCalendar
     end
 
     def gregorian_vesein_tal_umatar_start
-      start_date = JewishDate.new(jewish_year, 8, 7)
-      unless in_israel
-        start_date.set_gregorian_date(start_date.gregorian_year, 12, gregorian_leap_year?(start_date.gregorian_year + 1) ? 6 : 5)
-      end
-      start_date
+      @gregorian_vesein_tal_umatar_start ||= {}
+      (@gregorian_vesein_tal_umatar_start[jewish_year] ||= begin
+        start_date = JewishDate.new(jewish_year, 8, 7)
+        unless in_israel
+          julian_year = start_date.gregorian_date.new_start(Date::JULIAN).year
+          julian_date = Date.new(julian_year, 11, ((julian_year+1) % 4 == 0) ? 23 : 22, Date::JULIAN)
+          start_date.date = julian_date.new_start(Date::GREGORIAN)
+        end
+        start_date
+      end).dup
     end
   end
 end

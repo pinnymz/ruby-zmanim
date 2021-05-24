@@ -1205,6 +1205,20 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
         expect(matches).to_not include '9-9', '1-17', '3-8'
       end
     end
+    context 'with a shorter Gregorian discrepancy' do
+      let(:matches){ all_days_matching(5478, ->(c){ c.vesein_tal_umatar? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to include '9-29', '1-14'
+        expect(matches).to_not include '9-28', '1-17', '3-8'
+      end
+    end
+    context 'in a proleptic Gregorian year' do
+      let(:matches){ all_days_matching(3663, ->(c){ c.vesein_tal_umatar? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to include '9-2', '1-14'
+        expect(matches).to_not include '9-1', '1-17', '3-8'
+      end
+    end
     context 'in israel' do
       let(:matches){ all_days_matching(5777, ->(c){ c.vesein_tal_umatar? }, in_israel: true).values.first }
       it 'returns the expected days' do
@@ -1239,6 +1253,18 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
         it 'returns the expected day' do
           expect(matches).to eq ['9-11']   # 12-6
         end
+      end
+    end
+    context 'with a shorter Gregorian discrepancy' do
+      let(:matches){ all_days_matching(5478, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-28']   # 12-2
+      end
+    end
+    context 'in a proleptic Gregorian year' do
+      let(:matches){ all_days_matching(3663, ->(c){ c.vesein_tal_umatar_starts_tonight? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-1']   # 11-19
       end
     end
     context 'in israel' do

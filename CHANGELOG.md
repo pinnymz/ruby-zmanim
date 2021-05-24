@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - `JewishCalendar#taanis_bechorim?` detects Taanis Bechorim for a given date
+### Fixed
+- `JewishCalendar#vesein_tal_umatar?` and `JewishCalendar#vesein_tal_umatar_starts_tonight?` now auto-adjust for any Gregorian calendar year
 
 ## [0.4.0] - 2020-10-13
 ### Added
