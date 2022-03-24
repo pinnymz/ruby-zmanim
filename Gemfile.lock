@@ -1,0 +1,41 @@
+PATH
+  remote: .
+  specs:
+    zmanim (0.4.0)
+      tzinfo
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    byebug (9.1.0)
+    concurrent-ruby (1.1.10)
+    diff-lcs (1.5.0)
+    rake (13.0.6)
+    rspec (3.11.0)
+      rspec-core (~> 3.11.0)
+      rspec-expectations (~> 3.11.0)
+      rspec-mocks (~> 3.11.0)
+    rspec-core (3.11.0)
+      rspec-support (~> 3.11.0)
+    rspec-expectations (3.11.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-mocks (3.11.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.11.0)
+    rspec-support (3.11.0)
+    tzinfo (2.0.4)
+      concurrent-ruby (~> 1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 2.3)
+  byebug (~> 9.1)
+  rake (~> 13.0)
+  rspec (~> 3.7)
+  zmanim!
+
+BUNDLED WITH
+   2.3.10
