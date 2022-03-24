@@ -1152,6 +1152,320 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
     end
   end
 
+  describe '#pesach' do
+    it_behaves_like("annual_significant_event", "pesach", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 1, 15) }
+    end
+  end
+
+  describe '#pesach_sheni' do
+    it_behaves_like("annual_significant_event", "pesach_sheni", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 2, 14) }
+    end
+  end
+
+  describe '#lag_baomer' do
+    it_behaves_like("annual_significant_event", "lag_baomer", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 2, 18) }
+    end
+  end
+
+  describe '#shavuos' do
+    it_behaves_like("annual_significant_event", "shavuos", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 3, 6) }
+    end
+  end
+
+  describe '#seventeen_of_tammuz' do
+    context 'in a regular year' do
+      it_behaves_like("annual_significant_event", "seventeen_of_tammuz", 20, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 4, 17) }
+      end
+    end
+    context 'in a nidcha year' do
+      it_behaves_like("annual_significant_event", "seventeen_of_tammuz", 20, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_thursday_kesidran, 4, 18) }
+      end
+    end
+  end
+
+  describe '#tisha_beav' do
+    context 'in a regular year' do
+      it_behaves_like("annual_significant_event", "tisha_beav", 20, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 5, 9) }
+      end
+    end
+    context 'in a nidcha year' do
+      it_behaves_like("annual_significant_event", "tisha_beav", 20, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_thursday_kesidran, 5, 10) }
+      end
+    end
+  end
+
+  describe '#tu_beav' do
+    it_behaves_like("annual_significant_event", "tu_beav", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 5, 15) }
+    end
+  end
+
+  describe '#rosh_hashana' do
+    it_behaves_like("annual_significant_event", "rosh_hashana", 0, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 1) }
+    end
+  end
+
+  describe '#tzom_gedalyah' do
+    context 'in a regular year' do
+      it_behaves_like("annual_significant_event", "tzom_gedalyah", 2, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 3) }
+      end
+    end
+    context 'in a nidcha year' do
+      it_behaves_like("annual_significant_event", "tzom_gedalyah", 2, 20) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_thursday_kesidran, 7, 4) }
+      end
+    end
+  end
+
+  describe '#yom_kippur' do
+    it_behaves_like("annual_significant_event", "yom_kippur", 8, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 10) }
+    end
+  end
+
+  describe '#succos' do
+    it_behaves_like("annual_significant_event", "succos", 10, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 7, 15) }
+    end
+  end
+
+  describe '#chanukah' do
+    it_behaves_like("annual_significant_event", "chanukah", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 9, 25) }
+    end
+  end
+
+  describe '#tenth_of_teves' do
+    it_behaves_like("annual_significant_event", "tenth_of_teves", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 10, 10) }
+    end
+  end
+
+  describe '#tu_beshvat' do
+    it_behaves_like("annual_significant_event", "tu_beshvat", 20, 20) do
+      let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 11, 15) }
+    end
+  end
+
+  describe '#purim' do
+    context 'in a standard year' do
+      it_behaves_like("annual_significant_event", "purim", 20, 15) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(standard_monday_chaseir, 12, 14) }
+      end
+    end
+    context 'in a leap year' do
+      it_behaves_like("annual_significant_event", "purim", 20, 15) do
+        let(:target_date){ Zmanim::HebrewCalendar::JewishCalendar.new(leap_monday_chaseir, 13, 14) }
+      end
+    end
+  end
+
+  describe '#rosh_chodesh' do
+    let(:default_month){ 11 }
+    let(:default_day){ 15 }
+    let(:default_year){ standard_monday_chaseir }
+    let(:calendar){ Zmanim::HebrewCalendar::JewishCalendar.new(default_year, default_month, default_day) }
+    context 'for a given year' do
+      it 'returns the rosh chodesh for that year in current month' do
+        result = calendar.rosh_chodesh(year: leap_monday_chaseir)
+        expect(result).to eq Zmanim::HebrewCalendar::JewishDate.new(leap_monday_chaseir, default_month, 1)
+      end
+    end
+    context 'for a given month' do
+      it 'returns the rosh chodesh for that month in current year' do
+        result = calendar.rosh_chodesh(month: 2)
+        expect(result).to eq Zmanim::HebrewCalendar::JewishDate.new(default_year, 1, 30)
+      end
+    end
+    context 'for a given month and year' do
+      it 'returns the rosh chodesh for that year and month' do
+        result = calendar.rosh_chodesh(year: leap_monday_chaseir, month: 2)
+        expect(result).to eq Zmanim::HebrewCalendar::JewishDate.new(leap_monday_chaseir, 1, 30)
+      end
+    end
+    context 'for no given month or year' do
+      it 'returns the rosh chodesh for the current year and month' do
+        result = calendar.rosh_chodesh
+        expect(result).to eq Zmanim::HebrewCalendar::JewishDate.new(default_year, default_month, 1)
+      end
+    end
+    context 'for upcoming' do
+      context 'for a chaseir month' do
+        let(:default_month){ 10 }
+        it 'returns the first day of the following month' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 11, 1)
+        end
+      end
+      context 'for a malei month' do
+        let(:default_month){ 11 }
+        it 'returns the first last day of the current month' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 11, 30)
+        end
+      end
+      context 'for adar in a standard year' do
+        let(:default_month){ 12 }
+        it 'returns the first of nisan' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 1, 1)
+        end
+      end
+      context 'for adar I in a leap year' do
+        let(:default_month){ 12 }
+        let(:default_year){ leap_monday_chaseir}
+        it 'returns the last day of adar I' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 12, 30)
+        end
+      end
+      context 'for adar II in a leap year' do
+        let(:default_month){ 13 }
+        let(:default_year){ leap_monday_chaseir}
+        it 'returns the first day of nisan' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 1, 1)
+        end
+      end
+      context 'for elul' do
+        let(:default_month){ 6 }
+        it 'returns the last day of tishrei of the following year' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year+1, 7, 30)
+        end
+      end
+      context 'for tishrei' do
+        let(:default_month){ 7 }
+        it 'returns the last day of tishrei' do
+          result = calendar.rosh_chodesh(upcoming: true)
+          expect_jewish_date(result, default_year, 7, 30)
+        end
+      end
+    end
+  end
+
+  describe '#shabbos_mevorchim' do
+    let(:default_month){ 11 }
+    let(:default_day){ 15 }
+    let(:default_year){ standard_monday_chaseir }
+    let(:calendar){ Zmanim::HebrewCalendar::JewishCalendar.new(default_year, default_month, default_day) }
+    context 'for a given year' do
+      it 'returns the shabbos mevorchim for that year in current month' do
+        result = calendar.shabbos_mevorchim(year: leap_monday_chaseir)
+        expect(result.jewish_year).to eq leap_monday_chaseir
+        expect(result.jewish_month).to eq 10
+        expect(result.shabbos_mevorchim?).to be_truthy
+      end
+    end
+    context 'for a given month' do
+      it 'returns the shabbos mevorchim for that month in current year' do
+        result = calendar.shabbos_mevorchim(month: 2)
+        expect(result.jewish_year).to eq default_year
+        expect(result.jewish_month).to eq 1
+        expect(result.shabbos_mevorchim?).to be_truthy
+      end
+    end
+    context 'for a given month and year' do
+      it 'returns the shabbos mevorchim for that year and month' do
+        result = calendar.shabbos_mevorchim(year: leap_monday_chaseir, month: 2)
+        expect(result.jewish_year).to eq leap_monday_chaseir
+        expect(result.jewish_month).to eq 1
+        expect(result.shabbos_mevorchim?).to be_truthy
+      end
+    end
+    context 'for no given month or year' do
+      it 'returns the shabbos mevorchim for the current year and month' do
+        result = calendar.shabbos_mevorchim
+        expect(result.jewish_year).to eq default_year
+        expect(result.jewish_month).to eq 10
+        expect(result.shabbos_mevorchim?).to be_truthy
+      end
+    end
+    context 'for upcoming' do
+      it 'returns the shabbos mevorchim of the following month' do
+        result = calendar.shabbos_mevorchim(upcoming: true)
+        expect(result.jewish_year).to eq default_year
+        expect(result.jewish_month).to eq 11
+        expect(result.shabbos_mevorchim?).to be_truthy
+      end
+      context 'for elul' do
+        let(:default_month){ 6 }
+        it 'returns the shabbos mevorchim of cheshvan for the following year' do
+          result = calendar.shabbos_mevorchim(upcoming: true)
+          expect(result.jewish_year).to eq default_year+1
+          expect(result.jewish_month).to eq 7
+          expect(result.shabbos_mevorchim?).to be_truthy
+        end
+      end
+      context 'for tishrei' do
+        let(:default_month){ 7 }
+        it 'returns the shabbos mevorchim of cheshvan for the current year' do
+          result = calendar.shabbos_mevorchim(upcoming: true)
+          expect(result.jewish_year).to eq default_year
+          expect(result.jewish_month).to eq 7
+          expect(result.shabbos_mevorchim?).to be_truthy
+        end
+      end
+    end
+  end
+
+  describe '#vesein_tal_umatar_start' do
+    let(:default_year){ standard_monday_chaseir }
+    let(:default_month_day){ [1, 1] }
+    let(:calendar){ Zmanim::HebrewCalendar::JewishCalendar.new(default_year, *default_month_day) }
+    context 'for a given year' do
+      it 'returns the event for that year' do
+        result = calendar.vesein_tal_umatar_start(year: leap_monday_chaseir)
+        expect(result.jewish_year).to eq leap_monday_chaseir
+        expect(result.vesein_tal_umatar_starts?).to be_truthy
+      end
+    end
+    context 'for no given year' do
+      it 'returns the event for the current year' do
+        result = calendar.vesein_tal_umatar_start
+        expect(result.jewish_year).to eq standard_monday_chaseir
+        expect(result.vesein_tal_umatar_starts?).to be_truthy
+      end
+    end
+    context 'for upcoming' do
+      let(:default_year){ 5779 }
+      context 'before the event' do
+        let(:default_month_day){ [9, 20] }
+        it 'returns the event for this year' do
+          result = calendar.vesein_tal_umatar_start(upcoming: true)
+          expect(result.jewish_year).to eq default_year
+          expect(result.vesein_tal_umatar_starts?).to be_truthy
+        end
+      end
+      context 'on the day of the event' do
+        let(:default_month_day){ [9, 27] }
+        it 'returns the same date' do
+          result = calendar.vesein_tal_umatar_start(upcoming: true)
+          expect(result.jewish_year).to eq default_year
+          expect(result.vesein_tal_umatar_starts?).to be_truthy
+        end
+      end
+      context 'on the day after the event' do
+        let(:default_month_day){ [9, 28] }
+        it 'returns the date for the following year' do
+          result = calendar.vesein_tal_umatar_start(upcoming: true)
+          expect(result.jewish_year).to eq default_year+1
+          expect(result.vesein_tal_umatar_starts?).to be_truthy
+        end
+      end
+    end
+  end
+
   describe '#shabbos_mevorchim?' do
     let(:matches){ all_days_matching(leap_monday_shaleim, ->(c){ c.shabbos_mevorchim? }).values.first }
     it 'returns the expected days' do
@@ -1224,6 +1538,54 @@ describe Zmanim::HebrewCalendar::JewishCalendar, hebrew_calendar: true do
       it 'returns the expected days' do
         expect(matches).to include '8-7', '11-25', '1-13', '1-14'
         expect(matches).to_not include '8-6', '1-16', '3-8'
+      end
+    end
+  end
+
+  describe '#vesein_tal_umatar_starts?' do
+    context 'when December 5th falls on most days' do
+      let(:matches){ all_days_matching(5779, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-27']   # 12-5
+      end
+    end
+    context 'when December 5th falls on Friday' do
+      let(:matches){ all_days_matching(5770, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-19']   # 12-6
+      end
+    end
+    context 'preceding a Gregorian leap year' do
+      context 'when December 6th falls on most days' do
+        let(:matches){ all_days_matching(5776, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+        it 'returns the expected day' do
+          expect(matches).to eq ['9-24']   # 12-6
+        end
+      end
+      context 'when December 6th falls on Friday' do
+        let(:matches){ all_days_matching(5764, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+        it 'returns the expected day' do
+          expect(matches).to eq ['9-12']   # 12-7
+        end
+      end
+    end
+    context 'with a shorter Gregorian discrepancy' do
+      let(:matches){ all_days_matching(5478, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-29']   # 12-3
+      end
+    end
+    context 'in a proleptic Gregorian year' do
+      let(:matches){ all_days_matching(3663, ->(c){ c.vesein_tal_umatar_starts? }).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['9-2']   # 11-20
+      end
+    end
+    context 'in israel' do
+      # 7 Cheshvan can never fall on Shabbos, so it will always be the starting day of Vesein Tal Umatar
+      let(:matches){ all_days_matching(5777, ->(c){ c.vesein_tal_umatar_starts? }, in_israel: true).values.first }
+      it 'returns the expected day' do
+        expect(matches).to eq ['8-7']
       end
     end
   end

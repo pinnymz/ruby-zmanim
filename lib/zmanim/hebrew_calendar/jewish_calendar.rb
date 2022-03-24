@@ -236,6 +236,138 @@ module Zmanim::HebrewCalendar
       end
     end
 
+    def pesach(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 1, 15)
+      end
+    end
+
+    def pesach_sheni(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 2, 14)
+      end
+    end
+
+    def lag_baomer(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 2, 18)
+      end
+    end
+
+    def shavuos(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 3, 6)
+      end
+    end
+
+    def seventeen_of_tammuz(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        date = JewishCalendar.new(y, 4, 17)
+        date.forward! if date.day_of_week == 7
+        date
+      end
+    end
+
+    def tisha_beav(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        date = JewishCalendar.new(y, 5, 9)
+        date.forward! if date.day_of_week == 7
+        date
+      end
+    end
+
+    def tu_beav(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 5, 15)
+      end
+    end
+
+    def rosh_hashana(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 7, 1)
+      end
+    end
+
+    def tzom_gedalyah(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        date = JewishCalendar.new(y, 7, 3)
+        date.forward! if date.day_of_week == 7
+        date
+      end
+    end
+
+    def yom_kippur(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 7, 10)
+      end
+    end
+
+    def succos(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 7, 15)
+      end
+    end
+
+    def chanukah(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 9, 25)
+      end
+    end
+
+    def tenth_of_teves(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 10, 10)
+      end
+    end
+
+    def tu_beshvat(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, 11, 15)
+      end
+    end
+
+    def purim(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        JewishCalendar.new(y, months_in_jewish_year(y), 14)
+      end
+    end
+
+    def rosh_chodesh(upcoming: nil, month: nil, year: nil)
+      find_monthly_event(upcoming, month, year) do |m, y|
+        m = 8 if m == 7
+        prev = m - 1
+        prev = months_in_jewish_year(y) if prev < 1
+        if days_in_jewish_month(prev,y) == 30
+          JewishCalendar.new(y, prev, 30)
+        else
+          JewishCalendar.new(y, m, 1)
+        end
+      end
+    end
+
+    def shabbos_mevorchim(upcoming: nil, month: nil, year: nil)
+      find_monthly_event(upcoming, month, year) do |m, y|
+        m = 8 if m == 7
+        prev = m - 1
+        prev = months_in_jewish_year(y) if prev < 1
+        mevorchim_start = JewishCalendar.new(y,prev,23)
+        mevorchim_start + (7 - mevorchim_start.day_of_week)
+      end
+    end
+
+    def vesein_tal_umatar_start(upcoming: nil, year: nil)
+      find_annual_event(upcoming, year) do |y|
+        start_date =
+          if in_israel
+            JewishCalendar.new(y, 8, 7)
+          else
+            JewishCalendar.new(y, 7, 1) + (47 - tekufas_tishrei_elapsed_days(1, year: y))
+          end
+        start_date.forward! if start_date.day_of_week == 7
+        start_date
+      end
+    end
+
     def shabbos_mevorchim?
       day_of_week == 7 &&
           jewish_month != 6 &&
@@ -265,16 +397,28 @@ module Zmanim::HebrewCalendar
     # and rely on the user to increment the jewish date after nightfall.
     def vesein_tal_umatar?
       return false if day_of_week == 7 || yom_tov_assur_bemelacha?
-      start_date = gregorian_vesein_tal_umatar_start
-      end_date = JewishDate.new(jewish_year, 1, 15)
-      self.between?(start_date, end_date)
+      return true if jewish_month == 1 && jewish_day < 15
+      return false if jewish_month < 8
+      if in_israel
+        jewish_month > 8 || (jewish_month == 8 && jewish_day >= 7)
+      else
+        tekufas_tishrei_elapsed_days >= 47
+      end
+    end
+
+    def vesein_tal_umatar_starts?
+      if in_israel
+        # 7 Cheshvan, or 8 Cheshvan if 7 is Shabbos
+        return false unless jewish_month == 8
+        (day_of_week != 7 && jewish_day == 7) || (day_of_week == 1 && jewish_day == 8)
+      else
+        elapsed_days = tekufas_tishrei_elapsed_days
+        (day_of_week != 7 && elapsed_days == 47) || (day_of_week == 1 && elapsed_days == 48)
+      end
     end
 
     def vesein_tal_umatar_starts_tonight?
-      return false if day_of_week == 6
-      start_date = gregorian_vesein_tal_umatar_start
-      (day_of_week == 7 && self == start_date) ||
-          self == (start_date - 1)
+      succ.vesein_tal_umatar_starts?
     end
 
     def vesein_beracha?
@@ -447,17 +591,53 @@ module Zmanim::HebrewCalendar
       end
     end
 
-    def gregorian_vesein_tal_umatar_start
-      @gregorian_vesein_tal_umatar_start ||= {}
-      (@gregorian_vesein_tal_umatar_start[jewish_year] ||= begin
-        start_date = JewishDate.new(jewish_year, 8, 7)
-        unless in_israel
-          julian_year = start_date.gregorian_date.new_start(Date::JULIAN).year
-          julian_date = Date.new(julian_year, 11, ((julian_year+1) % 4 == 0) ? 23 : 22, Date::JULIAN)
-          start_date.date = julian_date.new_start(Date::GREGORIAN)
-        end
-        start_date
-      end).dup
+    def tekufas_tishrei_elapsed_days(day_number=day_number_of_jewish_year, year: jewish_year)
+      days = jewish_calendar_elapsed_days(year) + (day_number-1) + 0.5
+      solar = (year - 1) * 365.25
+      (days - solar).floor.to_i
     end
+
+    # Finds the date for an annual event whose rules are provided to the method as a block
+    # Supports boolean `upcoming` or a given integer jewish `year`.
+    # If both are nil, defaults to current jewish year.
+    # `upcoming` finds the current or next occurrence of this event
+    def find_annual_event(upcoming, year)
+      if upcoming && year
+        raise "'upcoming' and 'year' options cannot be used together"
+      end
+
+      upcoming = false if upcoming.nil?    # 'upcoming' only when explicitly passed
+      year = jewish_year if year.nil?
+
+      current = yield(year)
+      upcoming && current < self ? yield(year+1) : current
+    end
+
+    # Finds the date for a monthly event whose rules are provided to the method as a block
+    # Supports boolean `upcoming` or a given integer jewish `year` and `month`.
+    # If all are nil, defaults to current jewish month and year.
+    # `upcoming` finds the current or next occurrence of this event
+    # If only month is provided, defaults to current jewish year.
+    # If only year is provided, defaults to current jewish month.
+    def find_monthly_event(upcoming, month, year)
+      if upcoming && (year || month)
+        raise "'upcoming' option cannot be used together with 'year' or 'month'"
+      end
+
+      upcoming = false if upcoming.nil?    # 'upcoming' only when explicitly passed
+      year ||= jewish_year
+      month ||= jewish_month
+
+      current = yield(month, year)
+      if upcoming && current < self
+        month += 1
+        month = 1 if month > months_in_jewish_year(year)
+        year += 1 if month == 7
+        yield(month, year)
+      else
+        current
+      end
+    end
+
   end
 end

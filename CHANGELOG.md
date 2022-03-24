@@ -7,8 +7,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - `JewishCalendar#taanis_bechorim?` detects Taanis Bechorim for a given date
+- `JewishCalendar#pesach` returns the date for start of Pesach for any year, or the next upcoming event
+- `JewishCalendar#pesach_sheni` returns the date for Pesach Sheni for any year, or the next upcoming event
+- `JewishCalendar#lag_baomer` returns the date for Lag Baomer for any year, or the next upcoming event
+- `JewishCalendar#shavuos` returns the date for start of Shavuos for any year, or the next upcoming event
+- `JewishCalendar#seventeen_of_tammuz` returns the date for Seventeen of Tammuz for any year, or the next upcoming event
+- `JewishCalendar#tisha_beav` returns the date for Tisha Beav for any year, or the next upcoming event
+- `JewishCalendar#tu_beav` returns the date for Tu Beav for any year, or the next upcoming event
+- `JewishCalendar#rosh_hashana` returns the date for start of Rosh Hashana for any year, or the next upcoming event
+- `JewishCalendar#tzom_gedalyah` returns the date for Tzom Gedalyah for any year, or the next upcoming event
+- `JewishCalendar#yom_kippur` returns the date for Yom Kippur for any year, or the next upcoming event
+- `JewishCalendar#succos` returns the date for start of Succos for any year, or the next upcoming event
+- `JewishCalendar#chanukah` returns the date for start of Chanukah for any year, or the next upcoming event
+- `JewishCalendar#tenth_of_teves` returns the date for Tenth of Teves for any year, or the next upcoming event
+- `JewishCalendar#tu_beshvat` returns the date for Tu Beshvat for any year, or the next upcoming event
+- `JewishCalendar#purim` returns the date for Purim for any year, or the next upcoming event
+- `JewishCalendar#rosh_chodesh` returns the date for Rosh Chodesh for any month, or the next upcoming event
+- `JewishCalendar#shabbos_mevorchim` returns the date for Shabbos Mevorchim for any month, or the next upcoming event
+- `JewishCalendar#vesein_tal_umatar_start` returns the date for start of reciting Vesein Tal Umatar for any year, or the next upcoming event
+- `JewishCalendar#vesein_tal_umatar_starts?` detects if reciting of Vesein Tal Umatar started today
 ### Fixed
-- `JewishCalendar#vesein_tal_umatar?` and `JewishCalendar#vesein_tal_umatar_starts_tonight?` now auto-adjust for any Gregorian calendar year
+- `JewishCalendar#vesein_tal_umatar?` and `JewishCalendar#vesein_tal_umatar_starts_tonight?` now auto-adjust for any calendar year, previously only valid for 20th/21st century
 
 ## [0.4.0] - 2020-10-13
 ### Added

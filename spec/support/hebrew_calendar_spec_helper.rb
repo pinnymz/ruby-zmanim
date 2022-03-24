@@ -84,3 +84,52 @@ module Zmanim
     end
   end
 end
+
+RSpec.shared_examples "annual_significant_event" do |event_name, earlier_increment, later_increment|
+  it_behaves_like("annual_event", event_name, earlier_increment, later_increment) do
+    let(:test_block){ ->(result){ result.significant_day == event_name.to_sym } }
+  end
+end
+
+RSpec.shared_examples "annual_event" do |event_name, earlier_increment, later_increment|
+  let(:sample_year){ target_date.jewish_year }
+  let(:earlier_date){ target_date - earlier_increment }
+  let(:later_date){ target_date + later_increment }
+  context 'for a given year' do
+    it "returns #{event_name} for that year" do
+      result = earlier_date.public_send(event_name, year: sample_year + 5)
+      expect(result.jewish_year).to eq(sample_year + 5)
+      expect(test_block.(result)).to be_truthy
+    end
+  end
+  context 'with no year' do
+    it "returns #{event_name} for the current year" do
+      result = earlier_date.public_send(event_name)
+      expect(result.jewish_year).to eq(sample_year)
+      expect(test_block.(result)).to be_truthy
+    end
+  end
+  context 'with upcoming as true' do
+    context 'for an earlier date' do
+      it "returns #{event_name} for the current year" do
+        result = earlier_date.public_send(event_name, upcoming: true)
+        expect(result.jewish_year).to eq(sample_year)
+        expect(test_block.(result)).to be_truthy
+      end
+    end
+    context "for the date of #{event_name}" do
+      it "returns the date itself" do
+        result = target_date.public_send(event_name, upcoming: true)
+        expect(result).to eq(target_date)
+        expect(test_block.(result)).to be_truthy
+      end
+    end
+    context 'for a later date' do
+      it "returns #{event_name} for the next year" do
+        result = later_date.public_send(event_name, upcoming: true)
+        expect(result.jewish_year).to eq(sample_year + 1)
+        expect(test_block.(result)).to be_truthy
+      end
+    end
+  end
+end
