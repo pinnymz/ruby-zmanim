@@ -93,15 +93,20 @@ module Zmanim::Limudim
       false
     end
 
+    def base_unit
+      fractional_units ? unit_step : 1
+    end
+
     def tiered_units_for_interval(units, interval)
       iteration = interval.iteration
-      offset = ((iteration - 1) * unit_step) + 1
+      offset = ((iteration - 1) * unit_step) + base_unit
       offset2 = (offset - 1) + unit_step if unit_step > 1
       offsets = [offset, offset2].compact
       targets = offsets.map{|o| [o, []]}
       results = find_offset_units(units, targets)
       return nil unless results.map(&:first).uniq == [0]
       paths = results.map(&:last)
+      paths = paths.map{|p| resolve_fractional_path(p) } if fractional_units
       Unit.new(*paths)
     end
 
@@ -109,10 +114,10 @@ module Zmanim::Limudim
       units.reduce(targets) do |t, (name, attributes)|
         if attributes.is_a?(Numeric)
           start = starting_page(units, name)
-          length = (attributes - start) + 1
+          length = (attributes - start) + base_unit
           t.select{|o, p| o == 0} + t.reject{|o,p| o == 0}.map do |o, p|
             o <= length ?
-                 [0, p + [name, (start + o) - 1]] :
+                 [0, p + [name, (start + o) - base_unit]] :
                  [o - length, p]
           end
         else
@@ -138,6 +143,17 @@ module Zmanim::Limudim
 
     def jewish_date(date)
       date.respond_to?(:jewish_year) ? date : Zmanim::HebrewCalendar::JewishDate.new(date)
+    end
+
+    def resolve_fractional_path(path)
+      if path.is_a?(Numeric)
+        index = (path - path.to_i) * fractional_units.size
+        [path.to_i, fractional_units[index]]
+      elsif path.is_a?(Array)
+        path[0..-2] + resolve_fractional_path(path.last)
+      else
+        path
+      end
     end
   end
 end

@@ -25,7 +25,17 @@ module Zmanim::Limudim
     end
 
     def render_extension(extension)
-      extension.join(':')
+      if extension.length == 1
+        extension.first.to_s
+      else
+        delimiter = character_extension?(extension.last) ? '' : ':'
+        render_extension(extension[0..-2]) + delimiter + extension.last.to_s
+      end
+    end
+
+    def character_extension?(component)
+      # single character extensions are appended directly as 'amud', R-to-L markers should be ignored
+      component.is_a?(String) && component.sub("\u200f",'').size == 1
     end
 
     def render_secondary(second_component, first_component)

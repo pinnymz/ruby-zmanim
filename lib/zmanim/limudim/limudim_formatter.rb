@@ -150,6 +150,8 @@ module Zmanim::Limudim
       unit.render do |e|
         if e.is_a?(Numeric)
           format_number(e)
+        elsif e.is_a?(String) && e.size == 1  # single character indicates amud
+          format_amud(e)
         elsif hebrew_format
           MASECHTOS[e]
         else
@@ -167,6 +169,13 @@ module Zmanim::Limudim
       return '' unless unit = (limud && limud.unit)
       prefix = hebrew_format ? 'פרקי אבות ' : 'Pirkei Avos '
       prefix + unit.render {|e| format_number(e) }
+    end
+
+    def format_amud(amud)
+      hebrew_format ? {
+        'a' => ".\u200f",
+        'b' => '׃'
+      }[amud] : amud
     end
 
     private

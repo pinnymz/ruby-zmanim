@@ -79,6 +79,13 @@ describe Zmanim::Limudim::Calculators::DafYomiBavli do
           expect(limud.description).to eq 'kinnim 23'
         end
       end
+      context 'for end of kinnim' do
+        let(:date){ Date.parse('2019-10-12') }
+        it 'should return the expected limud' do
+          limud = Zmanim::Limudim::Calculators::DafYomiBavli.new.limud(date)
+          expect(limud.description).to eq 'kinnim 25'
+        end
+      end
       context 'for beginning of tamid' do
         let(:date){ Date.parse('2019-10-13') }
         it 'should return the expected limud' do

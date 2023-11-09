@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- New `AmudYomiBavliDirshu` calculator for Amud Yomi Bavli following the Dirshu learning schedule
+- Support for limudim containing fractional units (required for Amud Yomi)
+- Support for Hebrew and English formatting of Amud
+### Fixed
+- Added missing test case for end of kinnim in DafYomiBavli schedule
+- Fixed broken `Time.parse` in tests due to Ruby moving the base implementation to the standard library
+
 ## [0.5.0] - 2022-03-24
 ### Added
 - `JewishCalendar#taanis_bechorim?` detects Taanis Bechorim for a given date

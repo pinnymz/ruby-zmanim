@@ -55,6 +55,22 @@ describe Zmanim::Limudim::LimudimFormatter, hebrew_calendar: true do
         expect(subject.format_talmudic(limud)).to eq 'Shevuos 30'
       end
     end
+    context 'with amudim' do
+      let(:date){ Date.parse('2023-11-07') }
+      let(:limud){ Zmanim::Limudim::Calculators::AmudYomiBavliDirshu.new.limud(date) }
+      context 'with hebrew format' do
+        before { subject.hebrew_format = true }
+        it 'formats as expected' do
+          expect(subject.format_talmudic(limud)).to eq "ברכות יג.\u200f"
+        end
+      end
+      context 'without hebrew format' do
+        before { subject.hebrew_format = false }
+        it 'formats as expected' do
+          expect(subject.format_talmudic(limud)).to eq 'Berachos 13a'
+        end
+      end
+    end
   end
 
   describe '#format_tehillim' do

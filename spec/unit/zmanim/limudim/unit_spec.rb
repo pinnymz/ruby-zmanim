@@ -14,10 +14,28 @@ describe Zmanim::Limudim::Unit do
         expect(subject.to_s).to eq 'berachos 3'
       end
     end
-    context 'for a multi-level unit' do
+    context 'for a multi-level unit with integers' do
       let(:subject){ Zmanim::Limudim::Unit.new(['berachos', 3, 5, 7, 4, 5]) }
       it 'renders as expected' do
         expect(subject.to_s).to eq 'berachos 3:5:7:4:5'
+      end
+    end
+    context 'for a multi-level unit with a character' do
+      let(:subject){ Zmanim::Limudim::Unit.new(['berachos', 'a']) }
+      it 'renders as expected' do
+        expect(subject.to_s).to eq 'berachos a'
+      end
+    end
+    context 'for a multi-level unit with integers and closing with a character' do
+      let(:subject){ Zmanim::Limudim::Unit.new(['berachos', 18, 'a']) }
+      it 'renders as expected' do
+        expect(subject.to_s).to eq 'berachos 18a'
+      end
+      context 'together with an RLM marker' do
+        let(:subject){ Zmanim::Limudim::Unit.new(['berachos', 18, "a\u200f"]) }
+        it 'renders as expected' do
+          expect(subject.to_s).to eq "berachos 18a\u200f"
+        end
       end
     end
     context 'for a multi-component primitive unit' do

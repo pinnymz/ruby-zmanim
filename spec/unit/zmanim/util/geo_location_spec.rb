@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'time'
 
 describe Zmanim::Util::GeoLocation do
   describe '.GMT' do
